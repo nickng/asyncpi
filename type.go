@@ -266,3 +266,29 @@ func Unify(p Process) error {
 	}
 	return nil
 }
+
+// ProcTypes returns the Type of the Process p.
+func ProcTypes(p Process) string {
+	switch proc := p.(type) {
+	case *NilProcess:
+		return "0"
+	case *Send:
+		return fmt.Sprintf("%s!%#v", proc.Chan.Name(), proc.Chan.Type())
+	case *Recv:
+		return fmt.Sprintf("%s?%#v; %s", proc.Chan.Name(), proc.Chan.Type(), ProcTypes(proc.Cont))
+	case *Par:
+		var buf bytes.Buffer
+		for i, ps := range proc.Procs {
+			if i != 0 {
+				buf.WriteRune('|')
+			}
+			buf.WriteString(ProcTypes(ps))
+		}
+		return buf.String()
+	case *Repeat:
+		return "*" + ProcTypes(proc.Proc)
+	case *Restrict:
+		return fmt.Sprintf("(ν%s:%s) %s", proc.Name.Name(), proc.Name.Type(), ProcTypes(proc.Proc))
+	}
+	return ""
+}
