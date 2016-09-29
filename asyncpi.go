@@ -253,7 +253,7 @@ func (r *Recv) Golang() string {
 	case 1:
 		buf.WriteString(fmt.Sprintf("%s := <-%s;", r.Vars[0].Name(), r.Chan.Name()))
 	default:
-		buf.WriteString(fmt.Sprintf("rcvd := <-%s; /*%s*/", r.Chan.Name(), r.Chan.Type()))
+		buf.WriteString(fmt.Sprintf("rcvd := <-%s;", r.Chan.Name()))
 		for i, v := range r.Vars {
 			if i != 0 {
 				buf.WriteRune(',')
