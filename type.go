@@ -226,9 +226,8 @@ func Unify(p Process) error {
 				proc.Vars[0].SetType(chType) // Chan type --> Val type.
 			} else if _, ok := chType.(*refType).n.Type().(*unTyped); ok {
 				chType.(*refType).n.SetType(proc.Vars[0].Type()) // Val --> Chan type
-			} else if chType.String() == proc.Vars[0].Type().String() {
-				// No conflict.
-				// TODO(nickng) deref type and check properly.
+			} else if equalType(chType, proc.Vars[0].Type()) {
+				// Type is both set but equal.
 			} else {
 				return &ErrType{
 					T:   chType,
@@ -249,6 +248,8 @@ func Unify(p Process) error {
 					proc.Vars[i].SetType(chType.(*compType).types[i].(*refType).n.Type())
 				} else if _, ok := chType.(*compType).types[i].(*refType).n.Type().(*unTyped); ok {
 					chType.(*compType).types[i].(*refType).n.SetType(proc.Vars[i].Type())
+				} else if equalType(chType.(*compType).types[i], proc.Vars[i].Type()) {
+					// Type is both set but equal.
 				} else {
 					return &ErrType{
 						T:   chType,
@@ -293,4 +294,40 @@ func ProcTypes(p Process) string {
 		log.Fatalln("ProcTypes: Unknown process type", proc)
 	}
 	return ""
+}
+
+// deref peels off layers of refType from a given type and returns the underlying
+// type.
+func deref(t Type) Type {
+	if rt, ok := t.(*refType); ok {
+		return deref(rt.n.Type())
+	}
+	return t
+}
+
+// equalType compare types.
+func equalType(t, u Type) bool {
+	if baseT, tok := deref(t).(*baseType); tok {
+		if baseU, uok := deref(u).(*baseType); uok {
+			return baseT.name == baseU.name
+		}
+	}
+	if compT, tok := deref(t).(*compType); tok {
+		if compU, uok := deref(u).(*compType); uok {
+			if len(compT.types) == 0 && len(compU.types) == 0 {
+				return true
+			}
+			compEqual := len(compT.types) == len(compU.types)
+			for i := range compT.types {
+				compEqual = compEqual && equalType(compT.types[i], compU.types[i])
+			}
+			return compEqual
+		}
+	}
+	if chanT, tok := deref(t).(*chanType); tok {
+		if chanU, uok := deref(u).(*chanType); uok {
+			return equalType(chanT.T, chanU.T)
+		}
+	}
+	return false
 }
