@@ -469,3 +469,14 @@ func (s *Send) Golang() string {
 func (s *Send) String() string {
 	return fmt.Sprintf("Send(%s, %s)\n", s.Chan.Name(), s.Vals)
 }
+
+// GenerateGo generates Go code from a toplevel Process proc.
+func GenerateGo(proc Process) string {
+	proc = Bind(proc)
+	Infer(proc)
+	err := Unify(proc)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return proc.Golang()
+}

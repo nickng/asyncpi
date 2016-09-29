@@ -17,12 +17,12 @@ var TestCases map[string]TestCase
 
 func init() {
 	TestCases = map[string]TestCase{
-		"NilProcess": TestCase{
+		"NilProcess": {
 			Input:     `    0 `,
 			Output:    `Inaction`,
 			FreeNames: []Name{},
 		},
-		"Par": TestCase{
+		"Par": {
 			Input: `b().a().0 | b<> | (new x)x(a,b,c).0`,
 			Output: `Recv(b, [])
 Recv(a, [])
@@ -35,13 +35,13 @@ Recv(x, [a b c])
 Inaction
 }`, FreeNames: []Name{newPiName("a"), newPiName("b")},
 		},
-		"Recv": TestCase{
+		"Recv": {
 			Input: `a(b, c,d__).   0 `,
 			Output: `Recv(a, [b c d__])
 Inaction`,
 			FreeNames: []Name{newPiName("a")},
 		},
-		"Rep": TestCase{
+		"Rep": {
 			Input: `! a().0`,
 			Output: `repeat {
 Recv(a, [])
@@ -49,7 +49,7 @@ Inaction
 }`,
 			FreeNames: []Name{newPiName("a")},
 		},
-		"Res": TestCase{
+		"Res": {
 			Input: `(new x)  x().0 `,
 			Output: `scope x {
 Recv(x, [])
@@ -57,7 +57,7 @@ Inaction
 }`,
 			FreeNames: []Name{},
 		},
-		"Send": TestCase{
+		"Send": {
 			Input:     `a<b, e_, b> `,
 			Output:    `Send(a, [b e_ b])`,
 			FreeNames: []Name{newPiName("a"), newPiName("b"), newPiName("e_")},
@@ -225,13 +225,19 @@ func ExampleParse() {
 }
 
 // This example shows how to generate code from a Process.
-/*
-func ExampleCodegen() {
-	proc, err := Parse(strings.NewReader("(new a)(new b)(a<b> | a(x).x<> | b())"))
+func ExampleGenerateGo() {
+	proc, err := Parse(strings.NewReader("(new a)(new b)(a<b> | a(x).x<> | b().0)"))
 	if err != nil {
 		fmt.Println(err) // Parse failed
 	}
-	fmt.Println(Codegen(proc))
-	// Output: ""
+	proc = Bind(proc)
+	Infer(proc)
+	err = Unify(proc)
+	if err != nil {
+		fmt.Println(err) // Unify failed
+	}
+	fmt.Println(proc.Golang())
+	// Output: a := make(chan chan struct{}); b := make(chan struct{}); go func(){ go func(){ a <- b; }()
+	//x := <-a;x <- struct{}{}; }()
+	//<-b;/* end */
 }
-*/
