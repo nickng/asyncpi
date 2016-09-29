@@ -22,3 +22,14 @@ func (e *ErrType) Error() string {
 	return fmt.Sprintf("Type error: type %s and %s does not match (%s)",
 		e.T, e.U, e.Msg)
 }
+
+// ErrTypeArity is a type error because of arity.
+type ErrTypeArity struct {
+	Got, Expected int
+	Msg           string
+}
+
+func (e *ErrTypeArity) Error() string {
+	return fmt.Sprintf("Type error: type arity mismatch (got=%d, expected=%d) (%s)",
+		e.Got, e.Expected, e.Msg)
+}

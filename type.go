@@ -204,7 +204,9 @@ func Unify(p Process) error {
 	case *NilProcess, *Send: // No continuation.
 	case *Par:
 		for _, proc := range proc.Procs {
-			Unify(proc)
+			if err := Unify(proc); err != nil {
+				return err
+			}
 		}
 	case *Recv:
 		// chType is either
@@ -213,6 +215,13 @@ func Unify(p Process) error {
 		chType := proc.Chan.Type().(*chanType).T
 		switch arity := len(proc.Vars); arity {
 		case 1:
+			if _, ok := chType.(*refType); !ok {
+				return &ErrTypeArity{
+					Got:      len(chType.(*compType).types),
+					Expected: 1,
+					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
+				}
+			}
 			if _, ok := proc.Vars[0].Type().(*unTyped); ok {
 				proc.Vars[0].SetType(chType) // Chan type --> Val type.
 			} else if _, ok := chType.(*refType).n.Type().(*unTyped); ok {
@@ -225,6 +234,13 @@ func Unify(p Process) error {
 				}
 			}
 		default:
+			if _, ok := chType.(*compType); !ok {
+				return &ErrTypeArity{
+					Got:      1,
+					Expected: len(proc.Vars),
+					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
+				}
+			}
 			for i := range proc.Vars {
 				if _, ok := proc.Vars[i].Type().(*unTyped); ok {
 					proc.Vars[i].SetType(chType.(*compType).types[i].(*refType).n.Type())
@@ -239,11 +255,11 @@ func Unify(p Process) error {
 				}
 			}
 		}
-		Unify(proc.Cont)
+		return Unify(proc.Cont)
 	case *Repeat:
-		Unify(proc.Proc)
+		return Unify(proc.Proc)
 	case *Restrict:
-		Unify(proc.Proc)
+		return Unify(proc.Proc)
 	}
 	return nil
 }
