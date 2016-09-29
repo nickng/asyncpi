@@ -226,6 +226,9 @@ func Unify(p Process) error {
 				proc.Vars[0].SetType(chType) // Chan type --> Val type.
 			} else if _, ok := chType.(*refType).n.Type().(*unTyped); ok {
 				chType.(*refType).n.SetType(proc.Vars[0].Type()) // Val --> Chan type
+			} else if chType.String() == proc.Vars[0].Type().String() {
+				// No conflict.
+				// TODO(nickng) deref type and check properly.
 			} else {
 				return &ErrType{
 					T:   chType,
