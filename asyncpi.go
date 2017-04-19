@@ -17,11 +17,9 @@ type Name interface {
 	SetType(t Type)
 }
 
-type byName []Name
+type names []Name
 
-func (a byName) Len() int           { return len(a) }
-func (a byName) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a byName) Less(i, j int) bool { return a[i].Name() < a[j].Name() }
+func (n names) Less(i, j int) bool { return n[i].Name() < n[j].Name() }
 
 // RemDup removes duplicate Names from sorted []Name.
 func RemDup(names []Name) []Name {
@@ -135,7 +133,7 @@ func (p *Par) FreeNames() []Name {
 	for _, proc := range p.Procs {
 		fn = append(fn, proc.FreeNames()...)
 	}
-	sort.Sort(byName(fn))
+	sort.Slice(fn, names(fn).Less)
 	return RemDup(fn)
 }
 
@@ -145,7 +143,7 @@ func (p *Par) FreeVars() []Name {
 	for _, proc := range p.Procs {
 		fv = append(fv, proc.FreeVars()...)
 	}
-	sort.Sort(byName(fv))
+	sort.Slice(fv, names(fv).Less)
 	return RemDup(fv)
 }
 
@@ -206,7 +204,7 @@ func (r *Recv) SetVars(vars []Name) {
 func (r *Recv) FreeNames() []Name {
 	fn := []Name{r.Chan}
 	fn = append(fn, r.Cont.FreeNames()...)
-	sort.Sort(byName(fn))
+	sort.Slice(fn, names(fn).Less)
 	return RemDup(fn)
 }
 
@@ -224,7 +222,7 @@ func (r *Recv) FreeVars() []Name {
 			fv = append(fv, procFv)
 		}
 	}
-	sort.Sort(byName(fv))
+	sort.Slice(fv, names(fv).Less)
 	return RemDup(fv)
 }
 
@@ -346,7 +344,7 @@ func (r *Restrict) FreeNames() []Name {
 			fn = append(fn, procFn)
 		}
 	}
-	sort.Sort(byName(fn))
+	sort.Slice(fn, names(fn).Less)
 	return RemDup(fn)
 }
 
@@ -417,7 +415,7 @@ func (s *Send) FreeVars() []Name {
 	for _, v := range s.Vals {
 		fv = append(fv, v)
 	}
-	sort.Sort(byName(fv))
+	sort.Slice(fv, names(fv).Less)
 	return RemDup(fv)
 }
 

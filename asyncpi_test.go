@@ -76,20 +76,20 @@ func TestFreeName(t *testing.T) {
 
 // Tests fn(a) U fn(b) is a U b
 func TestFreeNames(t *testing.T) {
-	names := []Name{newPiName("a"), newPiName("c"), newPiName("b")}
+	piNames := []Name{newPiName("a"), newPiName("c"), newPiName("b")}
 	freeNames := []Name{}
-	for _, name := range names {
+	for _, name := range piNames {
 		freeNames = append(freeNames, name.FreeNames()...)
 	}
-	sort.Sort(byName(freeNames))
-	sort.Sort(byName(names))
-	if len(names) != len(freeNames) {
+	sort.Slice(freeNames, names(freeNames).Less)
+	sort.Slice(piNames, names(piNames).Less)
+	if len(piNames) != len(freeNames) {
 		t.Errorf("FreeNames: fn(a...) and a... have different sizes")
 		t.Fail()
 	}
-	for i := range names {
-		if names[i].Name() != freeNames[i].Name() {
-			t.Errorf("FreeNames: fn(a...) does not match a...: `%s` vs `%s`", freeNames, names)
+	for i := range piNames {
+		if piNames[i].Name() != freeNames[i].Name() {
+			t.Errorf("FreeNames: fn(a...) does not match a...: `%s` vs `%s`", freeNames, piNames)
 		}
 	}
 }
