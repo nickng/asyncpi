@@ -496,3 +496,20 @@ func TestInferNested(t *testing.T) {
 			btype, inferredResb.Name.Type())
 	}
 }
+
+// Test mismatched comptype (different number of args).
+// a,b are concrete, and a is bound. a cannot have both 2 args and 0 args.
+// both a are compType because of the binding, but the args mismatches.
+func TestMismatchCompType(t *testing.T) {
+	incompat := `(new a,b)(a(b,c).0 | a<>)`
+	proc, err := Parse(strings.NewReader(incompat))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bproc := Bind(proc)
+	Infer(bproc)
+	err = Unify(bproc)
+	if _, ok := err.(*ErrTypeArity); !ok {
+		t.Fatalf("Unify: Expecting type error (mismatched args in a) but got", err)
+	}
+}

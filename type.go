@@ -236,9 +236,15 @@ func Unify(p Process) error {
 				}
 			}
 		default:
-			if _, ok := chType.(*compType); !ok {
+			if ct, ok := chType.(*compType); !ok {
 				return &ErrTypeArity{
 					Got:      1,
+					Expected: len(proc.Vars),
+					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
+				}
+			} else if len(ct.types) != len(proc.Vars) {
+				return &ErrTypeArity{
+					Got:      len(ct.types),
 					Expected: len(proc.Vars),
 					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
 				}
