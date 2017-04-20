@@ -23,8 +23,8 @@ type names []Name
 
 func (n names) Less(i, j int) bool { return n[i].Name() < n[j].Name() }
 
-// RemDup removes duplicate Names from sorted []Name.
-func RemDup(names []Name) []Name {
+// remDup removes duplicate Names from sorted []Name.
+func remDup(names []Name) []Name {
 	m := make(map[string]bool)
 	for _, name := range names {
 		if _, seen := m[name.Name()]; !seen {
@@ -136,7 +136,7 @@ func (p *Par) FreeNames() []Name {
 		fn = append(fn, proc.FreeNames()...)
 	}
 	sort.Slice(fn, names(fn).Less)
-	return RemDup(fn)
+	return remDup(fn)
 }
 
 // FreeVars of Par is the free names of composed processes.
@@ -146,7 +146,7 @@ func (p *Par) FreeVars() []Name {
 		fv = append(fv, proc.FreeVars()...)
 	}
 	sort.Slice(fv, names(fv).Less)
-	return RemDup(fv)
+	return remDup(fv)
 }
 
 // Calculi returns the calculi representation.
@@ -207,7 +207,7 @@ func (r *Recv) FreeNames() []Name {
 	fn := []Name{r.Chan}
 	fn = append(fn, r.Cont.FreeNames()...)
 	sort.Slice(fn, names(fn).Less)
-	return RemDup(fn)
+	return remDup(fn)
 }
 
 // FreeVars of Recv is the channel and FreeVars in continuation minus received variables.
@@ -225,7 +225,7 @@ func (r *Recv) FreeVars() []Name {
 		}
 	}
 	sort.Slice(fv, names(fv).Less)
-	return RemDup(fv)
+	return remDup(fv)
 }
 
 // Calculi returns the calculi representation.
@@ -347,7 +347,7 @@ func (r *Restrict) FreeNames() []Name {
 		}
 	}
 	sort.Slice(fn, names(fn).Less)
-	return RemDup(fn)
+	return remDup(fn)
 }
 
 // FreeVars of Restrict are FreeVars in Proc.
@@ -418,7 +418,7 @@ func (s *Send) FreeVars() []Name {
 		fv = append(fv, v)
 	}
 	sort.Slice(fv, names(fv).Less)
-	return RemDup(fv)
+	return remDup(fv)
 }
 
 // Calculi returns the calculi representation.
