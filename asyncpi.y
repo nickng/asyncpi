@@ -40,6 +40,7 @@ proc :          simpleproc { $$ = $1 }
 simpleproc : NIL { $$ = NewNilProcess() }
            | NAME LANGLE values RANGLE { $$ = NewSend(newPiName($1)); $$.(*Send).SetVals($3) }
            | NAME LPAREN names RPAREN PREFIX proc { $$ = NewRecv(newPiName($1), $6); $$.(*Recv).SetVars($3) }
+           | NAME LPAREN names RPAREN PREFIX LPAREN proc RPAREN { $$ = NewRecv(newPiName($1), $7); $$.(*Recv).SetVars($3) }
            | LPAREN NEW scopename RPAREN scope { $$ = NewRestrict($3, $5) }
            | LPAREN NEW scopename COMMA names RPAREN scope { $$ = NewRestricts(append([]Name{$3}, $5...), $7) }
            | REPEAT proc { $$ = NewRepeat($2) }

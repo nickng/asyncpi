@@ -59,7 +59,7 @@ const asyncpiEofCode = 1
 const asyncpiErrCode = 2
 const asyncpiInitialStackSize = 16
 
-//line asyncpi.y:65
+//line asyncpi.y:66
 
 // Parse is the entry point to the asyncpi calculus parser.
 func Parse(r io.Reader) (Process, error) {
@@ -80,56 +80,58 @@ var asyncpiExca = [...]int{
 	-2, 0,
 }
 
-const asyncpiNprod = 20
 const asyncpiPrivate = 57344
 
-var asyncpiTokenNames []string
-var asyncpiStates []string
-
-const asyncpiLast = 50
+const asyncpiLast = 57
 
 var asyncpiAct = [...]int{
 
-	3, 31, 2, 16, 17, 8, 6, 11, 38, 13,
-	12, 4, 5, 7, 11, 33, 19, 8, 18, 37,
-	4, 5, 7, 30, 25, 22, 32, 23, 29, 24,
-	34, 35, 26, 23, 27, 6, 36, 20, 32, 39,
-	4, 5, 7, 15, 28, 1, 9, 21, 10, 14,
+	3, 16, 31, 2, 8, 17, 11, 6, 18, 13,
+	42, 12, 4, 5, 7, 11, 40, 19, 30, 8,
+	27, 24, 38, 25, 20, 8, 32, 22, 34, 29,
+	23, 26, 35, 15, 21, 23, 28, 37, 33, 32,
+	39, 41, 36, 4, 5, 7, 6, 4, 5, 7,
+	1, 4, 5, 7, 9, 14, 10,
 }
 var asyncpiPact = [...]int{
 
-	29, -1000, -11, -1000, -1000, 42, -7, 29, 29, 31,
-	6, 6, -1000, -1000, 32, -1000, 18, -1000, 19, 17,
-	-1000, 22, 36, 6, 11, 9, 6, -1000, 29, -1000,
-	-1000, -1000, -1000, 0, 12, -1000, 1, 9, -1000, -1000,
+	40, -1000, -12, -1000, -1000, 50, -8, 40, 40, 21,
+	-4, -4, -1000, -1000, 19, -1000, 20, -1000, 11, 16,
+	-1000, 8, 28, -4, 6, 32, -4, -1000, 36, -1000,
+	-1000, -1000, -1000, 1, 15, -1000, 1, 9, 32, 3,
+	-1000, -1000, -1000,
 }
 var asyncpiPgo = [...]int{
 
-	0, 2, 0, 1, 4, 3, 49, 45,
+	0, 3, 0, 2, 5, 1, 55, 50,
 }
 var asyncpiR1 = [...]int{
 
 	0, 7, 1, 1, 2, 2, 2, 2, 2, 2,
-	4, 4, 3, 3, 5, 5, 5, 6, 6, 6,
+	2, 4, 4, 3, 3, 5, 5, 5, 6, 6,
+	6,
 }
 var asyncpiR2 = [...]int{
 
-	0, 1, 1, 3, 1, 4, 6, 5, 7, 2,
-	1, 3, 1, 3, 0, 1, 3, 0, 1, 3,
+	0, 1, 1, 3, 1, 4, 6, 8, 5, 7,
+	2, 1, 3, 1, 3, 0, 1, 3, 0, 1,
+	3,
 }
 var asyncpiChk = [...]int{
 
 	-1000, -7, -1, -2, 11, 12, 6, 13, 16, 4,
 	6, 14, -1, -2, -6, 12, -5, -4, 12, -4,
 	5, 15, 7, 15, 10, 7, 15, 12, 8, -4,
-	12, -3, -2, 6, -5, -1, -1, 7, 7, -3,
+	12, -3, -2, 6, -5, -1, 6, -1, 7, -1,
+	7, -3, 7,
 }
 var asyncpiDef = [...]int{
 
-	0, -2, 1, 2, 4, 0, 0, 0, 0, 17,
-	14, 0, 9, 3, 0, 18, 0, 15, 10, 0,
-	5, 0, 0, 0, 0, 0, 14, 19, 0, 16,
-	11, 7, 12, 0, 0, 6, 0, 0, 13, 8,
+	0, -2, 1, 2, 4, 0, 0, 0, 0, 18,
+	15, 0, 10, 3, 0, 19, 0, 16, 11, 0,
+	5, 0, 0, 0, 0, 0, 15, 20, 0, 17,
+	12, 8, 13, 0, 0, 6, 0, 0, 0, 0,
+	14, 9, 7,
 }
 var asyncpiTok1 = [...]int{
 
@@ -520,80 +522,87 @@ asyncpidefault:
 			asyncpiVAL.proc.(*Recv).SetVars(asyncpiDollar[3].names)
 		}
 	case 7:
-		asyncpiDollar = asyncpiS[asyncpipt-5 : asyncpipt+1]
+		asyncpiDollar = asyncpiS[asyncpipt-8 : asyncpipt+1]
 		//line asyncpi.y:43
+		{
+			asyncpiVAL.proc = NewRecv(newPiName(asyncpiDollar[1].strval), asyncpiDollar[7].proc)
+			asyncpiVAL.proc.(*Recv).SetVars(asyncpiDollar[3].names)
+		}
+	case 8:
+		asyncpiDollar = asyncpiS[asyncpipt-5 : asyncpipt+1]
+		//line asyncpi.y:44
 		{
 			asyncpiVAL.proc = NewRestrict(asyncpiDollar[3].name, asyncpiDollar[5].proc)
 		}
-	case 8:
+	case 9:
 		asyncpiDollar = asyncpiS[asyncpipt-7 : asyncpipt+1]
-		//line asyncpi.y:44
+		//line asyncpi.y:45
 		{
 			asyncpiVAL.proc = NewRestricts(append([]Name{asyncpiDollar[3].name}, asyncpiDollar[5].names...), asyncpiDollar[7].proc)
 		}
-	case 9:
+	case 10:
 		asyncpiDollar = asyncpiS[asyncpipt-2 : asyncpipt+1]
-		//line asyncpi.y:45
+		//line asyncpi.y:46
 		{
 			asyncpiVAL.proc = NewRepeat(asyncpiDollar[2].proc)
 		}
-	case 10:
+	case 11:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:48
+		//line asyncpi.y:49
 		{
 			asyncpiVAL.name = newPiName(asyncpiDollar[1].strval)
 		}
-	case 11:
+	case 12:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:49
+		//line asyncpi.y:50
 		{
 			asyncpiVAL.name = newTypedPiName(asyncpiDollar[1].strval, asyncpiDollar[3].strval)
 		}
-	case 12:
+	case 13:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:51
+		//line asyncpi.y:52
 		{
 			asyncpiVAL.proc = asyncpiDollar[1].proc
 		}
-	case 13:
+	case 14:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:52
+		//line asyncpi.y:53
 		{
 			asyncpiVAL.proc = asyncpiDollar[2].proc
 		}
-	case 14:
+	case 15:
 		asyncpiDollar = asyncpiS[asyncpipt-0 : asyncpipt+1]
-		//line asyncpi.y:55
+		//line asyncpi.y:56
 		{
 			asyncpiVAL.names = []Name{}
 		}
-	case 15:
+	case 16:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:56
+		//line asyncpi.y:57
 		{
 			asyncpiVAL.names = []Name{asyncpiDollar[1].name}
 		}
-	case 16:
+	case 17:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:57
+		//line asyncpi.y:58
 		{
 			asyncpiVAL.names = append(asyncpiDollar[1].names, asyncpiDollar[3].name)
 		}
-	case 17:
+	case 18:
 		asyncpiDollar = asyncpiS[asyncpipt-0 : asyncpipt+1]
-		//line asyncpi.y:60
+		//line asyncpi.y:61
 		{
 			asyncpiVAL.names = []Name{}
 		}
-	case 18:
+	case 19:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:61
+		//line asyncpi.y:62
 		{
 			asyncpiVAL.names = []Name{newPiName(asyncpiDollar[1].strval)}
 		}
-	case 19:
+	case 20:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:62
+		//line asyncpi.y:63
 		{
 			asyncpiVAL.names = append(asyncpiDollar[1].names, newPiName(asyncpiDollar[3].strval))
 		}
