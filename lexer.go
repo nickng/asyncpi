@@ -1,6 +1,6 @@
 package asyncpi
 
-//go:generate go tool yacc -p asyncpi -o parser.y.go asyncpi.y
+//go:generate goyacc -p asyncpi -o parser.y.go asyncpi.y
 
 import "io"
 
