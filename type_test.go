@@ -513,3 +513,17 @@ func TestMismatchCompType(t *testing.T) {
 		t.Fatalf("Unify: Expecting type error (mismatched args in a) but got", err)
 	}
 }
+
+// Test receive with multiple compatible senders.
+func TestMultipleSender(t *testing.T) {
+	ms := `(new b)a(x).(x<b>|x<z>)`
+	proc, err := Parse(strings.NewReader(ms))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bproc := Bind(proc)
+	Infer(bproc)
+	if err := Unify(bproc); err != nil {
+		t.Fatal(err)
+	}
+}

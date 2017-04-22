@@ -224,15 +224,17 @@ func Unify(p Process) error {
 			}
 			if _, ok := proc.Vars[0].Type().(*unTyped); ok {
 				proc.Vars[0].SetType(chType) // Chan type --> Val type.
-			} else if _, ok := chType.(*refType).n.Type().(*unTyped); ok {
-				chType.(*refType).n.SetType(proc.Vars[0].Type()) // Val --> Chan type
-			} else if equalType(chType, proc.Vars[0].Type()) {
-				// Type is both set but equal.
 			} else {
-				return &ErrType{
-					T:   chType,
-					U:   proc.Vars[0].Type(),
-					Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", proc.Chan.Name()),
+				if _, ok := chType.(*refType).n.Type().(*unTyped); ok {
+					chType.(*refType).n.SetType(proc.Vars[0].Type()) // Val --> Chan type
+				} else if equalType(chType, proc.Vars[0].Type()) {
+					// Type is both set but equal.
+				} else {
+					return &ErrType{
+						T:   chType,
+						U:   proc.Vars[0].Type(),
+						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", proc.Chan.Name()),
+					}
 				}
 			}
 		default:
@@ -313,6 +315,9 @@ func deref(t Type) Type {
 
 // equalType compare types.
 func equalType(t, u Type) bool {
+	if t == u {
+		return true
+	}
 	if baseT, tok := deref(t).(*baseType); tok {
 		if baseU, uok := deref(u).(*baseType); uok {
 			return baseT.name == baseU.name
