@@ -97,10 +97,16 @@ func (n *piName) SetType(t Type) {
 }
 
 func (n *piName) String() string {
-	if _, ok := n.t.(*unTyped); ok {
-		return n.name
+	var buf bytes.Buffer
+	if n.s == varSort {
+		buf.WriteString("_")
 	}
-	return fmt.Sprintf("%s:%s", n.name, n.t.String())
+	if _, ok := n.t.(*unTyped); ok {
+		buf.WriteString(n.name)
+		return buf.String()
+	}
+	buf.WriteString(fmt.Sprintf("%s:%s", n.name, n.t.String()))
+	return buf.String()
 }
 
 // Process is process prefixed with action.
