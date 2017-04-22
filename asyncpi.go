@@ -14,6 +14,7 @@ import (
 // Name is channel or value.
 type Name interface {
 	FreeNames() []Name
+	FreeVars() []Name
 	Name() string
 	Type() Type
 	SetType(t Type)
@@ -35,10 +36,18 @@ func remDup(names []Name) []Name {
 	return names[:len(m)]
 }
 
+type sorts int
+
+const (
+	nameSort sorts = iota // default sort is name.
+	varSort
+)
+
 // name is a concrete Name.
 type piName struct {
 	name string
 	t    Type
+	s    sorts
 }
 
 // newPiName creates a new concrete name from a string.
@@ -51,9 +60,25 @@ func newTypedPiName(n, t string) Name {
 	return &piName{name: n, t: NewBaseType(t)}
 }
 
-// FreeNames of name is itself.
+// setSort sets the name sort.
+func (n *piName) setSort(s sorts) {
+	n.s = s
+}
+
+// FreeNames of name is itself (if sort is name).
 func (n *piName) FreeNames() []Name {
-	return []Name{n}
+	if n.s == nameSort {
+		return []Name{n}
+	}
+	return []Name{}
+}
+
+// FreeVars of name is itself (if sort is var).
+func (n *piName) FreeVars() []Name {
+	if n.s == varSort {
+		return []Name{n}
+	}
+	return []Name{}
 }
 
 // Name is the string identifier of a name.
