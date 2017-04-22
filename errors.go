@@ -33,3 +33,13 @@ func (e *ErrTypeArity) Error() string {
 	return fmt.Sprintf("Type error: type arity mismatch (got=%d, expected=%d) (%s)",
 		e.Got, e.Expected, e.Msg)
 }
+
+// ErrUnknownProcType is an error for unknown process kind in type switch.
+type ErrUnknownProcType struct {
+	Caller string
+	Proc   Process
+}
+
+func (e ErrUnknownProcType) Error() string {
+	return fmt.Sprintf("%s: Unknown process type: %T", e.Caller, e.Proc)
+}

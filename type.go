@@ -190,7 +190,7 @@ func Infer(p Process) {
 	case *Restrict:
 		Infer(proc.Proc)
 	default:
-		log.Fatalln("Infer: Unknown process type", proc)
+		log.Fatal(ErrUnknownProcType{Caller: "Infer", Proc: proc})
 	}
 }
 
@@ -297,7 +297,7 @@ func ProcTypes(p Process) string {
 	case *Restrict:
 		return fmt.Sprintf("(ν%s:%s) %s", proc.Name.Name(), proc.Name.Type(), ProcTypes(proc.Proc))
 	default:
-		log.Fatalln("ProcTypes: Unknown process type", proc)
+		log.Fatal(ErrUnknownProcType{Caller: "ProcTypes", Proc: proc})
 	}
 	return ""
 }

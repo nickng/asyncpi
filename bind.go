@@ -75,7 +75,7 @@ func bind(p Process, boundNames []Name) Process {
 		proc.Proc = bind(proc.Proc, names)
 		return proc
 	default:
-		log.Fatalln("Bind: Unknown process type", proc)
+		log.Fatal(ErrUnknownProcType{Caller: "Bind", Proc: p})
 	}
 	return proc
 }
