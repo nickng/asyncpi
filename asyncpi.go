@@ -131,7 +131,7 @@ func NewPar(P, Q Process) *Par { return &Par{Procs: []Process{P, Q}} }
 
 // FreeNames of Par is the free names of composed processes.
 func (p *Par) FreeNames() []Name {
-	fn := []Name{}
+	var fn []Name
 	for _, proc := range p.Procs {
 		fn = append(fn, proc.FreeNames()...)
 	}
@@ -141,7 +141,7 @@ func (p *Par) FreeNames() []Name {
 
 // FreeVars of Par is the free names of composed processes.
 func (p *Par) FreeVars() []Name {
-	fv := []Name{}
+	var fv []Name
 	for _, proc := range p.Procs {
 		fv = append(fv, proc.FreeVars()...)
 	}
@@ -204,7 +204,8 @@ func (r *Recv) SetVars(vars []Name) {
 
 // FreeNames of Recv is the channel and FreeNames of the continuation.
 func (r *Recv) FreeNames() []Name {
-	fn := []Name{r.Chan}
+	var fn []Name
+	fn = append(fn, r.Chan.FreeNames()...)
 	fn = append(fn, r.Cont.FreeNames()...)
 	sort.Slice(fn, names(fn).Less)
 	return remDup(fn)
@@ -212,20 +213,24 @@ func (r *Recv) FreeNames() []Name {
 
 // FreeVars of Recv is the channel and FreeVars in continuation minus received variables.
 func (r *Recv) FreeVars() []Name {
-	fv := []Name{}
-	for _, procFv := range r.Cont.FreeVars() {
-		removeFv := false
-		for _, v := range r.Vars {
-			if procFv.Name() == v.Name() {
-				removeFv = true
-			}
+	var fv []Name
+	fv = append(fv, r.Cont.FreeVars()...)
+	sort.Slice(fv, names(fv).Less)
+
+	ffv := fv[:0] // filtered
+	for i, j := 0, 0; i < len(fv); i++ {
+		for j < len(r.Vars) && r.Vars[j].Name() < fv[i].Name() {
+			j++
 		}
-		if !removeFv {
-			fv = append(fv, procFv)
+		if j < len(r.Vars) && r.Vars[j].Name() != fv[i].Name() { // overshoot
+			ffv = append(ffv, fv[i])
+		} else if i >= len(r.Vars) { // remaining
+			ffv = append(ffv, fv[i])
 		}
 	}
-	sort.Slice(fv, names(fv).Less)
-	return remDup(fv)
+	ffv = append(ffv, r.Chan.FreeVars()...)
+	sort.Slice(ffv, names(ffv).Less)
+	return remDup(ffv)
 }
 
 // Calculi returns the calculi representation.
@@ -340,14 +345,18 @@ func NewRestrict(a Name, P Process) *Restrict {
 
 // FreeNames of Restrict are FreeNames in Proc excluding Name.
 func (r *Restrict) FreeNames() []Name {
-	fn := []Name{}
-	for _, procFn := range r.Proc.FreeNames() {
-		if procFn.Name() != r.Name.Name() {
-			fn = append(fn, procFn)
+	var fn []Name
+	fn = append(fn, r.Proc.FreeNames()...)
+	sort.Slice(fn, names(fn).Less)
+	fn = remDup(fn)
+
+	for i, n := range fn {
+		if n.Name() == r.Name.Name() {
+			fn = append(fn[:i], fn[i+1:]...)
+			break
 		}
 	}
-	sort.Slice(fn, names(fn).Less)
-	return remDup(fn)
+	return fn
 }
 
 // FreeVars of Restrict are FreeVars in Proc.
@@ -408,14 +417,21 @@ func (s *Send) SetVals(vals []Name) {
 
 // FreeNames of Send is the channel and the Vals.
 func (s *Send) FreeNames() []Name {
-	return []Name{s.Chan}
+	var fn []Name
+	fn = append(fn, s.Chan.FreeNames()...)
+	for _, v := range s.Vals {
+		fn = append(fn, v.FreeNames()...)
+	}
+	sort.Slice(fn, names(fn).Less)
+	return remDup(fn)
 }
 
 // FreeVars of Send is the Vals.
 func (s *Send) FreeVars() []Name {
-	fv := []Name{}
+	var fv []Name
+	fv = append(fv, s.Chan.FreeVars()...)
 	for _, v := range s.Vals {
-		fv = append(fv, v)
+		fv = append(fv, v.FreeVars()...)
 	}
 	sort.Slice(fv, names(fv).Less)
 	return remDup(fv)
