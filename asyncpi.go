@@ -183,10 +183,10 @@ func (p *Par) FreeVars() []Name {
 // Calculi returns the calculi representation.
 func (p *Par) Calculi() string {
 	buf := new(bytes.Buffer)
-	t := template.Must(template.New("par").Parse(`
+	t := template.Must(template.New("par").Parse(`(
 {{- range $i, $p := .Procs -}}
 {{- if $i }} | {{ end -}}{{- $p.Calculi -}}
-{{- end -}}`))
+{{- end -}})`))
 	err := t.Execute(buf, p)
 	if err != nil {
 		log.Println("Executing template:", err)
