@@ -37,10 +37,15 @@ func bind(p Process, boundNames []Name) Process {
 				}
 			}
 		}
+		var chanBound bool
 		for i, bn := range names {
 			if proc.Chan.Name() == bn.Name() { // Found bound Chan
 				proc.Chan = names[i]
+				chanBound = true
 			}
+		}
+		if !chanBound {
+			names = append(names, proc.Chan)
 		}
 		proc.Cont = bind(proc.Cont, names)
 		return proc
