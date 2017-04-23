@@ -65,6 +65,11 @@ func (n *piName) setSort(s sorts) {
 	n.s = s
 }
 
+// setName sets the internal name.
+func (n *piName) setName(name string) {
+	n.name = name
+}
+
 // FreeNames of name is itself (if sort is name).
 func (n *piName) FreeNames() []Name {
 	if n.s == nameSort {
