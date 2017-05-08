@@ -6,6 +6,13 @@ import (
 	"unicode/utf8"
 )
 
+type sorts int
+
+const (
+	nameSort sorts = iota // default sort is name.
+	varSort
+)
+
 // Sorts.
 // Names are split to name and var sort.
 
@@ -96,7 +103,7 @@ func ResetSorts(proc Process) {
 //
 type NameVarSorter struct{}
 
-func (s *NameVarSorter) annotate(n Name) string {
+func (s *NameVarSorter) visit(n Name) string {
 	r, _ := utf8.DecodeRuneInString(n.Name())
 	if strings.ContainsRune("nopqrstuvwxyz", r) {
 		if s, ok := n.(sortSetter); ok {
