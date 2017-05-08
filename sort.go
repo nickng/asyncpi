@@ -1,6 +1,10 @@
 package asyncpi
 
-import "log"
+import (
+	"log"
+	"strings"
+	"unicode/utf8"
+)
 
 // Sorts.
 // Names are split to name and var sort.
@@ -84,4 +88,20 @@ func ResetSorts(proc Process) {
 			log.Fatal(ErrUnknownProcType{Caller: "ResetSorts", Proc: p})
 		}
 	}
+}
+
+// NameVarSorter is a name visitor which puts names in sorts.
+// A Name is a name/var depending on its prefix:
+//   names={a,b,c,...} vars={...,x,y,z}
+//
+type NameVarSorter struct{}
+
+func (s *NameVarSorter) annotate(n Name) string {
+	r, _ := utf8.DecodeRuneInString(n.Name())
+	if strings.ContainsRune("nopqrstuvwxyz", r) {
+		if s, ok := n.(sortSetter); ok {
+			s.setSort(varSort)
+		}
+	}
+	return n.Name()
 }
