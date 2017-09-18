@@ -24,5 +24,5 @@ func (l *Lexer) Lex(yylval *asyncpiSymType) int {
 
 // Error handles error.
 func (l *Lexer) Error(err string) {
-	l.Errors <- &ErrParse{Err: err, Pos: l.scanner.pos}
+	l.Errors <- &ParseError{Err: err, Pos: l.scanner.pos}
 }

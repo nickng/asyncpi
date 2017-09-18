@@ -80,7 +80,7 @@ func bind(p Process, boundNames []Name) Process {
 		proc.Proc = bind(proc.Proc, names)
 		return proc
 	default:
-		log.Fatal(ErrUnknownProcType{Caller: "Bind", Proc: p})
+		log.Fatal(UnknownProcessTypeError{Caller: "Bind", Proc: p})
 	}
 	return proc
 }

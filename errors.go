@@ -2,44 +2,46 @@ package asyncpi
 
 import "fmt"
 
-// ErrParse is a parse error.
-type ErrParse struct {
+// ParseError is the type of error when parsing an asyncpi process.
+type ParseError struct {
 	Pos TokenPos
 	Err string // Error string returned from parser.
 }
 
-func (e *ErrParse) Error() string {
+func (e *ParseError) Error() string {
 	return fmt.Sprintf("Parse failed at %s: %s", e.Pos, e.Err)
 }
 
-// ErrType is a type error.
-type ErrType struct {
+// TypeError is the type of error when analysing the behavioural type of an
+// asyncpi process.
+type TypeError struct {
 	T, U Type
 	Msg  string
 }
 
-func (e *ErrType) Error() string {
+func (e *TypeError) Error() string {
 	return fmt.Sprintf("Type error: type %s and %s does not match (%s)",
 		e.T, e.U, e.Msg)
 }
 
-// ErrTypeArity is a type error because of arity.
-type ErrTypeArity struct {
+// TypeArityError is the type of error when process parameter arity does not
+// match when unifying.
+type TypeArityError struct {
 	Got, Expected int
 	Msg           string
 }
 
-func (e *ErrTypeArity) Error() string {
+func (e *TypeArityError) Error() string {
 	return fmt.Sprintf("Type error: type arity mismatch (got=%d, expected=%d) (%s)",
 		e.Got, e.Expected, e.Msg)
 }
 
-// ErrUnknownProcType is an error for unknown process kind in type switch.
-type ErrUnknownProcType struct {
+// UnknownProcessTypeError is the type of error for an unknown process type.
+type UnknownProcessTypeError struct {
 	Caller string
 	Proc   Process
 }
 
-func (e ErrUnknownProcType) Error() string {
+func (e UnknownProcessTypeError) Error() string {
 	return fmt.Sprintf("%s: Unknown process type: %T", e.Caller, e.Proc)
 }

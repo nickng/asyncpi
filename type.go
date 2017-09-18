@@ -190,7 +190,7 @@ func Infer(p Process) {
 	case *Restrict:
 		Infer(proc.Proc)
 	default:
-		log.Fatal(ErrUnknownProcType{Caller: "Infer", Proc: proc})
+		log.Fatal(UnknownProcessTypeError{Caller: "Infer", Proc: proc})
 	}
 }
 
@@ -216,7 +216,7 @@ func Unify(p Process) error {
 		switch arity := len(proc.Vars); arity {
 		case 1:
 			if _, ok := chType.(*refType); !ok {
-				return &ErrTypeArity{
+				return &TypeArityError{
 					Got:      len(chType.(*compType).types),
 					Expected: 1,
 					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
@@ -230,7 +230,7 @@ func Unify(p Process) error {
 				} else if equalType(chType, proc.Vars[0].Type()) {
 					// Type is both set but equal.
 				} else {
-					return &ErrType{
+					return &TypeError{
 						T:   chType,
 						U:   proc.Vars[0].Type(),
 						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", proc.Chan.Name()),
@@ -239,13 +239,13 @@ func Unify(p Process) error {
 			}
 		default:
 			if ct, ok := chType.(*compType); !ok {
-				return &ErrTypeArity{
+				return &TypeArityError{
 					Got:      1,
 					Expected: len(proc.Vars),
 					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
 				}
 			} else if len(ct.types) != len(proc.Vars) {
-				return &ErrTypeArity{
+				return &TypeArityError{
 					Got:      len(ct.types),
 					Expected: len(proc.Vars),
 					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", proc.Chan.Name()),
@@ -259,7 +259,7 @@ func Unify(p Process) error {
 				} else if equalType(chType.(*compType).types[i], proc.Vars[i].Type()) {
 					// Type is both set but equal.
 				} else {
-					return &ErrType{
+					return &TypeError{
 						T:   chType,
 						U:   proc.Vars[0].Type(),
 						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", proc.Chan.Name()),
@@ -299,7 +299,7 @@ func ProcTypes(p Process) string {
 	case *Restrict:
 		return fmt.Sprintf("(ν%s:%s) %s", proc.Name.Name(), proc.Name.Type(), ProcTypes(proc.Proc))
 	default:
-		log.Fatal(ErrUnknownProcType{Caller: "ProcTypes", Proc: proc})
+		log.Fatal(UnknownProcessTypeError{Caller: "ProcTypes", Proc: proc})
 	}
 	return ""
 }

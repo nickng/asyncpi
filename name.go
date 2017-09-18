@@ -138,7 +138,7 @@ func UpdateName(proc Process, a NameVisitor) {
 			}
 			procs = append(procs, p.Proc)
 		default:
-			log.Fatal(ErrUnknownProcType{Caller: "UpdateName", Proc: p})
+			log.Fatal(UnknownProcessTypeError{Caller: "UpdateName", Proc: p})
 		}
 	}
 }

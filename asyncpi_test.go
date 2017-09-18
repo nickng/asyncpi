@@ -196,7 +196,7 @@ func TestParseFailed(t *testing.T) {
 	incomplete := `(new a`
 	_, err := Parse(strings.NewReader(incomplete))
 	if err != nil {
-		if _, ok := err.(*ErrParse); !ok {
+		if _, ok := err.(*ParseError); !ok {
 			t.Errorf("Parse: `%s` expecting parse error but got %s",
 				incomplete, err)
 		}

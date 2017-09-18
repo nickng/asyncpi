@@ -54,7 +54,7 @@ func IdentifySorts(proc Process) {
 			nameVar[p.Name] = false // new name = not var
 			procs = append(procs, p.Proc)
 		default:
-			log.Fatal(ErrUnknownProcType{Caller: "IdentifySorts", Proc: p})
+			log.Fatal(UnknownProcessTypeError{Caller: "IdentifySorts", Proc: p})
 		}
 	}
 }
@@ -92,7 +92,7 @@ func ResetSorts(proc Process) {
 		case *Restrict:
 			procs = append(procs, p.Proc)
 		default:
-			log.Fatal(ErrUnknownProcType{Caller: "ResetSorts", Proc: p})
+			log.Fatal(UnknownProcessTypeError{Caller: "ResetSorts", Proc: p})
 		}
 	}
 }
