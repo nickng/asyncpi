@@ -1,4 +1,4 @@
-# asyncpi [![Build Status](https://travis-ci.org/nickng/asyncpi.svg?branch=master)](https://travis-ci.org/nickng/asyncpi) [![GoDoc](https://godoc.org/github.com/nickng/asyncpi?status.svg)](http://godoc.org/github.com/nickng/asyncpi)
+# asyncpi [![Build Status](https://travis-ci.org/nickng/asyncpi.svg?branch=master)](https://travis-ci.org/nickng/asyncpi) [![GoDoc](https://godoc.org/go.nickng.io/asyncpi?status.svg)](http://godoc.org/go.nickng.io/asyncpi)
 
 ## An implementation of asynchronous π-calculus in Go.
 
@@ -14,7 +14,7 @@ see [godoc](http://godoc.org/github.com/nickng/asyncpi).
 
 ## Install
 
-    go get github.com/nickng/asyncpi
+    go get go.nickng.io/asyncpi
 
 ## License
 

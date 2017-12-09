@@ -52,4 +52,4 @@
 // Since i is used as a channel, i cannot be of type int, the annotation is
 // therefore ignored.
 //
-package asyncpi // import "github.com/nickng/asyncpi"
+package asyncpi // import "go.nickng.io/asyncpi"
