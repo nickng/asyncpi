@@ -510,7 +510,7 @@ func TestMismatchCompType(t *testing.T) {
 	Infer(bproc)
 	err = Unify(bproc)
 	if _, ok := err.(*TypeArityError); !ok {
-		t.Fatalf("Unify: Expecting type error (mismatched args in a) but got", err)
+		t.Fatalf("Unify: Expecting type error (mismatched args in a) but got %v", err)
 	}
 }
 
