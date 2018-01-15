@@ -15,52 +15,53 @@ var proc Process
 	names  []Name
 }
 
-%token LANGLE RANGLE LPAREN RPAREN PREFIX SEMICOLON COLON NIL NAME REPEAT NEW COMMA
+%token kLANGLE kRANGLE kLPAREN kRPAREN kPREFIX kSEMICOLON kCOLON kNIL kNAME kREPEAT kNEW kCOMMA
 %type <proc> proc simpleproc scope
-%type <strval> NAME
+%type <strval> kNAME
 %type <name> scopename
 %type <names> names
 %type <names> values
 
-%left PAR
-%right REPEAT
-%nonassoc PREFIX
-%right REP
-%left COMMA
+%left kPAR
+%right kREPEAT
+%nonassoc kPREFIX
+%right kREP
+%left kCOMMA
 
 %%
 
 top : proc { proc = $1 }
     ;
 
-proc :          simpleproc { $$ = $1 }
-     | proc PAR simpleproc { $$ = NewPar($1, $3)}
+proc :           simpleproc { $$ = $1 }
+     | proc kPAR simpleproc { $$ = NewPar($1, $3)}
      ;
 
-simpleproc : NIL { $$ = NewNilProcess() }
-           | NAME LANGLE values RANGLE { $$ = NewSend(newPiName($1)); $$.(*Send).SetVals($3) }
-           | NAME LPAREN names RPAREN PREFIX proc { $$ = NewRecv(newPiName($1), $6); $$.(*Recv).SetVars($3) }
-           | NAME LPAREN names RPAREN PREFIX LPAREN proc RPAREN { $$ = NewRecv(newPiName($1), $7); $$.(*Recv).SetVars($3) }
-           | LPAREN NEW scopename RPAREN scope { $$ = NewRestrict($3, $5) }
-           | LPAREN NEW scopename COMMA names RPAREN scope { $$ = NewRestricts(append([]Name{$3}, $5...), $7) }
-           | REPEAT proc { $$ = NewRepeat($2) }
+simpleproc : kNIL { $$ = NewNilProcess() }
+           | kNAME kLANGLE values kRANGLE { $$ = NewSend(newPiName($1)); $$.(*Send).SetVals($3) }
+           | kNAME kLPAREN names kRPAREN kPREFIX         proc         { $$ = NewRecv(newPiName($1), $6); $$.(*Recv).SetVars($3) }
+           | kNAME kLPAREN names kRPAREN kPREFIX kLPAREN proc kRPAREN { $$ = NewRecv(newPiName($1), $7); $$.(*Recv).SetVars($3) }
+           | kLPAREN kNEW scopename kRPAREN scope { $$ = NewRestrict($3, $5) }
+           | kLPAREN kNEW scopename kCOMMA names kRPAREN scope { $$ = NewRestricts(append([]Name{$3}, $5...), $7) }
+           | kREPEAT proc { $$ = NewRepeat($2) }
            ;
 
-scopename : NAME            { $$ = newPiName($1) }
-          | NAME COLON NAME { $$ = newTypedPiName($1, $3) }
+scopename : kNAME              { $$ = newPiName($1) }
+          | kNAME kCOLON kNAME { $$ = newTypedPiName($1, $3) }
+          ;
 
-scope : simpleproc         { $$ = $1 }
-      | LPAREN proc RPAREN { $$ = $2 }
+scope : simpleproc           { $$ = $1 }
+      | kLPAREN proc kRPAREN { $$ = $2 }
       ;
 
-names : /* empty */           { $$ = []Name{} }
-      |             scopename { $$ = []Name{$1} }
-      | names COMMA scopename { $$ = append($1, $3) }
+names : /* empty */            { $$ = []Name{} }
+      |              scopename { $$ = []Name{$1} }
+      | names kCOMMA scopename { $$ = append($1, $3) }
       ;
 
-values : /* empty */       { $$ = []Name{} }
-       | NAME              { $$ = []Name{newPiName($1)} }
-       | values COMMA NAME { $$ = append($1, newPiName($3)) }
+values : /* empty */         { $$ = []Name{} }
+       |               kNAME { $$ = []Name{newPiName($1)} }
+       | values kCOMMA kNAME { $$ = append($1, newPiName($3)) }
        ;
 
 %%

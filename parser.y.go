@@ -19,39 +19,39 @@ type asyncpiSymType struct {
 	names  []Name
 }
 
-const LANGLE = 57346
-const RANGLE = 57347
-const LPAREN = 57348
-const RPAREN = 57349
-const PREFIX = 57350
-const SEMICOLON = 57351
-const COLON = 57352
-const NIL = 57353
-const NAME = 57354
-const REPEAT = 57355
-const NEW = 57356
-const COMMA = 57357
-const PAR = 57358
-const REP = 57359
+const kLANGLE = 57346
+const kRANGLE = 57347
+const kLPAREN = 57348
+const kRPAREN = 57349
+const kPREFIX = 57350
+const kSEMICOLON = 57351
+const kCOLON = 57352
+const kNIL = 57353
+const kNAME = 57354
+const kREPEAT = 57355
+const kNEW = 57356
+const kCOMMA = 57357
+const kPAR = 57358
+const kREP = 57359
 
 var asyncpiToknames = [...]string{
 	"$end",
 	"error",
 	"$unk",
-	"LANGLE",
-	"RANGLE",
-	"LPAREN",
-	"RPAREN",
-	"PREFIX",
-	"SEMICOLON",
-	"COLON",
-	"NIL",
-	"NAME",
-	"REPEAT",
-	"NEW",
-	"COMMA",
-	"PAR",
-	"REP",
+	"kLANGLE",
+	"kRANGLE",
+	"kLPAREN",
+	"kRPAREN",
+	"kPREFIX",
+	"kSEMICOLON",
+	"kCOLON",
+	"kNIL",
+	"kNAME",
+	"kREPEAT",
+	"kNEW",
+	"kCOMMA",
+	"kPAR",
+	"kREP",
 }
 var asyncpiStatenames = [...]string{}
 
@@ -59,7 +59,7 @@ const asyncpiEofCode = 1
 const asyncpiErrCode = 2
 const asyncpiInitialStackSize = 16
 
-//line asyncpi.y:66
+//line asyncpi.y:67
 
 // Parse is the entry point to the asyncpi calculus parser.
 func Parse(r io.Reader) (Process, error) {
@@ -560,49 +560,49 @@ asyncpidefault:
 		}
 	case 13:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:52
+		//line asyncpi.y:53
 		{
 			asyncpiVAL.proc = asyncpiDollar[1].proc
 		}
 	case 14:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:53
+		//line asyncpi.y:54
 		{
 			asyncpiVAL.proc = asyncpiDollar[2].proc
 		}
 	case 15:
 		asyncpiDollar = asyncpiS[asyncpipt-0 : asyncpipt+1]
-		//line asyncpi.y:56
+		//line asyncpi.y:57
 		{
 			asyncpiVAL.names = []Name{}
 		}
 	case 16:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:57
+		//line asyncpi.y:58
 		{
 			asyncpiVAL.names = []Name{asyncpiDollar[1].name}
 		}
 	case 17:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:58
+		//line asyncpi.y:59
 		{
 			asyncpiVAL.names = append(asyncpiDollar[1].names, asyncpiDollar[3].name)
 		}
 	case 18:
 		asyncpiDollar = asyncpiS[asyncpipt-0 : asyncpipt+1]
-		//line asyncpi.y:61
+		//line asyncpi.y:62
 		{
 			asyncpiVAL.names = []Name{}
 		}
 	case 19:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:62
+		//line asyncpi.y:63
 		{
 			asyncpiVAL.names = []Name{newPiName(asyncpiDollar[1].strval)}
 		}
 	case 20:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:63
+		//line asyncpi.y:64
 		{
 			asyncpiVAL.names = append(asyncpiDollar[1].names, newPiName(asyncpiDollar[3].strval))
 		}

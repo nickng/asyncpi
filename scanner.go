@@ -45,7 +45,7 @@ func (s *Scanner) unread() {
 }
 
 // Scan returns the next token and parsed value.
-func (s *Scanner) Scan() (token Token, value string, startPos, endPos TokenPos) {
+func (s *Scanner) Scan() (token tok, value string, startPos, endPos TokenPos) {
 	ch := s.read()
 
 	if isWhitespace(ch) {
@@ -65,31 +65,31 @@ func (s *Scanner) Scan() (token Token, value string, startPos, endPos TokenPos) 
 	case eof:
 		return 0, "", startPos, endPos
 	case '<':
-		return LANGLE, string(ch), startPos, endPos
+		return kLANGLE, string(ch), startPos, endPos
 	case '>':
-		return RANGLE, string(ch), startPos, endPos
+		return kRANGLE, string(ch), startPos, endPos
 	case '(':
-		return LPAREN, string(ch), startPos, endPos
+		return kLPAREN, string(ch), startPos, endPos
 	case ')':
-		return RPAREN, string(ch), startPos, endPos
+		return kRPAREN, string(ch), startPos, endPos
 	case '.':
-		return PREFIX, string(ch), startPos, endPos
+		return kPREFIX, string(ch), startPos, endPos
 	case ';':
-		return SEMICOLON, string(ch), startPos, endPos
+		return kSEMICOLON, string(ch), startPos, endPos
 	case ':':
-		return COLON, string(ch), startPos, endPos
+		return kCOLON, string(ch), startPos, endPos
 	case '|':
-		return PAR, string(ch), startPos, endPos
+		return kPAR, string(ch), startPos, endPos
 	case '!':
-		return REPEAT, string(ch), startPos, endPos
+		return kREPEAT, string(ch), startPos, endPos
 	case ',':
-		return COMMA, string(ch), startPos, endPos
+		return kCOMMA, string(ch), startPos, endPos
 	}
 
-	return ILLEGAL, string(ch), startPos, endPos
+	return kILLEGAL, string(ch), startPos, endPos
 }
 
-func (s *Scanner) scanName() (token Token, value string, startPos, endPos TokenPos) {
+func (s *Scanner) scanName() (token tok, value string, startPos, endPos TokenPos) {
 	var buf bytes.Buffer
 	startPos = s.pos
 	defer func() { endPos = s.pos }()
@@ -108,11 +108,11 @@ func (s *Scanner) scanName() (token Token, value string, startPos, endPos TokenP
 
 	switch buf.String() {
 	case "0":
-		return NIL, buf.String(), startPos, endPos
+		return kNIL, buf.String(), startPos, endPos
 	case "new":
-		return NEW, buf.String(), startPos, endPos
+		return kNEW, buf.String(), startPos, endPos
 	}
-	return NAME, buf.String(), startPos, endPos
+	return kNAME, buf.String(), startPos, endPos
 }
 
 func (s *Scanner) skipWhitespace() {

@@ -9,12 +9,12 @@ import (
 
 // Tokens for use with lexer and parser.
 
-// Token is a lexical token.
-type Token int
+// tok is a lexical token.
+type tok int
 
 const (
-	// ILLEGAL is a special token for errors.
-	ILLEGAL Token = iota
+	// kILLEGAL is a special token for errors.
+	kILLEGAL tok = iota
 )
 
 var eof = rune(0)

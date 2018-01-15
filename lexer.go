@@ -17,7 +17,7 @@ func NewLexer(r io.Reader) *Lexer {
 
 // Lex is provided for yacc-compatible parser.
 func (l *Lexer) Lex(yylval *asyncpiSymType) int {
-	var token Token
+	var token tok
 	token, yylval.strval, _, _ = l.scanner.Scan()
 	return int(token)
 }
