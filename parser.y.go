@@ -63,7 +63,7 @@ const asyncpiInitialStackSize = 16
 
 // Parse is the entry point to the asyncpi calculus parser.
 func Parse(r io.Reader) (Process, error) {
-	l := NewLexer(r)
+	l := newLexer(r)
 	asyncpiParse(l)
 	select {
 	case err := <-l.Errors:

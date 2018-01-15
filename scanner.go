@@ -6,20 +6,20 @@ import (
 	"io"
 )
 
-// Scanner is a lexical scanner.
-type Scanner struct {
+// scanner is a lexical scanner.
+type scanner struct {
 	r   *bufio.Reader
 	pos TokenPos
 }
 
-// NewScanner returns a new instance of Scanner.
-func NewScanner(r io.Reader) *Scanner {
-	return &Scanner{r: bufio.NewReader(r), pos: TokenPos{Char: 0, Lines: []int{}}}
+// newScanner returns a new instance of Scanner.
+func newScanner(r io.Reader) *scanner {
+	return &scanner{r: bufio.NewReader(r), pos: TokenPos{Char: 0, Lines: []int{}}}
 }
 
 // read reads the next rune from the buffered reader.
 // Returns the rune(0) if reached the end or error occurs.
-func (s *Scanner) read() rune {
+func (s *scanner) read() rune {
 	ch, _, err := s.r.ReadRune()
 	if err != nil {
 		return eof
@@ -34,7 +34,7 @@ func (s *Scanner) read() rune {
 }
 
 // unread places the previously read rune back on the reader.
-func (s *Scanner) unread() {
+func (s *scanner) unread() {
 	_ = s.r.UnreadRune()
 	if s.pos.Char == 0 {
 		s.pos.Char = s.pos.Lines[len(s.pos.Lines)-1]
@@ -45,7 +45,7 @@ func (s *Scanner) unread() {
 }
 
 // Scan returns the next token and parsed value.
-func (s *Scanner) Scan() (token tok, value string, startPos, endPos TokenPos) {
+func (s *scanner) Scan() (token tok, value string, startPos, endPos TokenPos) {
 	ch := s.read()
 
 	if isWhitespace(ch) {
@@ -89,7 +89,7 @@ func (s *Scanner) Scan() (token tok, value string, startPos, endPos TokenPos) {
 	return kILLEGAL, string(ch), startPos, endPos
 }
 
-func (s *Scanner) scanName() (token tok, value string, startPos, endPos TokenPos) {
+func (s *scanner) scanName() (token tok, value string, startPos, endPos TokenPos) {
 	var buf bytes.Buffer
 	startPos = s.pos
 	defer func() { endPos = s.pos }()
@@ -115,7 +115,7 @@ func (s *Scanner) scanName() (token tok, value string, startPos, endPos TokenPos
 	return kNAME, buf.String(), startPos, endPos
 }
 
-func (s *Scanner) skipWhitespace() {
+func (s *scanner) skipWhitespace() {
 	for {
 		if ch := s.read(); ch == eof {
 			break

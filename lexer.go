@@ -4,25 +4,25 @@ package asyncpi
 
 import "io"
 
-// Lexer for asyncpi.
-type Lexer struct {
-	scanner *Scanner
+// lexer for asyncpi.
+type lexer struct {
+	scanner *scanner
 	Errors  chan error
 }
 
-// NewLexer returns a new yacc-compatible lexer.
-func NewLexer(r io.Reader) *Lexer {
-	return &Lexer{scanner: NewScanner(r), Errors: make(chan error, 1)}
+// newLexer returns a new yacc-compatible lexer.
+func newLexer(r io.Reader) *lexer {
+	return &lexer{scanner: newScanner(r), Errors: make(chan error, 1)}
 }
 
 // Lex is provided for yacc-compatible parser.
-func (l *Lexer) Lex(yylval *asyncpiSymType) int {
+func (l *lexer) Lex(yylval *asyncpiSymType) int {
 	var token tok
 	token, yylval.strval, _, _ = l.scanner.Scan()
 	return int(token)
 }
 
 // Error handles error.
-func (l *Lexer) Error(err string) {
+func (l *lexer) Error(err string) {
 	l.Errors <- &ParseError{Err: err, Pos: l.scanner.pos}
 }
