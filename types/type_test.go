@@ -1,8 +1,10 @@
-package asyncpi
+package types
 
 import (
 	"strings"
 	"testing"
+
+	"go.nickng.io/asyncpi"
 )
 
 // Tests type inference only.
@@ -13,62 +15,62 @@ func TestBasicInferOnly(t *testing.T) {
 	ctype := "T"                // From type hint.
 	ytype := "interface{}"      // type(b) if unified.
 	ztype := "interface{}"      // type(c) if unified.
-	proc, err := Parse(strings.NewReader(input))
+	proc, err := asyncpi.Parse(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new a)P but got `%s`", proc)
 	}
-	if resa.Name.Type().String() != atype {
-		t.Errorf("Infer: expected a typed `%s` but got `%s`",
-			atype, resa.Name.Type().String())
+	if resa.Name.(TypedName).Type().String() != atype {
+		t.Errorf("Infer: expected a typed `%s` but got `%s` %#v",
+			atype, resa.Name.(TypedName).Type().String(), resa.Name)
 	}
-	resb, ok := resa.Proc.(*Restrict)
+	resb, ok := resa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new b)P but got `%s`", resa.Proc)
 	}
-	if resb.Name.Type().String() != btype {
+	if resb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: expected b typed `%s` but got `%s`",
-			btype, resb.Name.Type().String())
+			btype, resb.Name.(TypedName).Type().String())
 	}
-	resc, ok := resb.Proc.(*Restrict)
+	resc, ok := resb.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new c)P but got `%s`", resb.Proc)
 	}
-	if resc.Name.Type().String() != ctype {
+	if resc.Name.(TypedName).Type().String() != ctype {
 		t.Errorf("Infer: expected c typed `%s` but got `%s`",
-			ctype, resc.Name.Type().String())
+			ctype, resc.Name.(TypedName).Type().String())
 	}
-	par, ok := resc.Proc.(*Par)
+	par, ok := resc.Proc.(*asyncpi.Par)
 	if !ok {
 		t.Errorf("Parse: expected P|Q but got `%s`", resc.Proc)
 	}
-	recva, ok := par.Procs[1].(*Recv)
+	recva, ok := par.Procs[1].(*asyncpi.Recv)
 	if !ok {
 		t.Errorf("Parse: expected a() but got `%s`", par.Procs[1])
 	}
 	if len(recva.Vars) != 2 {
 		t.Errorf("Parse: expected a(y,z) but got a %d-tuple", len(recva.Vars))
 	}
-	if recva.Vars[0].Type().String() != ytype {
+	if recva.Vars[0].(TypedName).Type().String() != ytype {
 		t.Errorf("Infer: expected y typed `%s` but got `%s`",
-			ytype, recva.Vars[0].Type().String())
+			ytype, recva.Vars[0].(TypedName).Type().String())
 	}
-	sendb, ok := recva.Cont.(*Send)
+	sendb, ok := recva.Cont.(*asyncpi.Send)
 	if !ok {
 		t.Errorf("Parse: expected b<z> but got `%s`", recva.Cont)
 	}
 	if len(sendb.Vals) != 1 {
 		t.Errorf("Parse: expected b<z> but got a %d-tuple", len(sendb.Vals))
 	}
-	if sendb.Vals[0].Type().String() != ztype {
+	if sendb.Vals[0].(TypedName).Type().String() != ztype {
 		t.Errorf("Infer: expected z typed `%s` but got `%s`",
-			ztype, sendb.Vals[0].Type().String())
+			ztype, sendb.Vals[0].(TypedName).Type().String())
 	}
 }
 
@@ -81,63 +83,63 @@ func TestBasicInferUnify(t *testing.T) {
 	ctype := "T"      // From type hint.
 	ytype := "chan T" // type(b).
 	ztype := "T"      // type(c).
-	proc, err := Parse(strings.NewReader(input))
+	proc, err := asyncpi.Parse(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
 
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new a)P but got `%s`", resa)
 	}
-	if resa.Name.Type().String() != atype {
+	if resa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: expected a typed `%s` but got `%s`",
-			atype, resa.Name.Type().String())
+			atype, resa.Name.(TypedName).Type().String())
 	}
-	resb, ok := resa.Proc.(*Restrict)
+	resb, ok := resa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new b)P but got `%s`", resb)
 	}
-	if resb.Name.Type().String() != btype {
+	if resb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: expected b typed `%s` but got `%s`",
-			btype, resb.Name.Type().String())
+			btype, resb.Name.(TypedName).Type().String())
 	}
-	resc, ok := resb.Proc.(*Restrict)
+	resc, ok := resb.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new c)P but got `%s`", resc)
 	}
-	if resc.Name.Type().String() != ctype {
+	if resc.Name.(TypedName).Type().String() != ctype {
 		t.Errorf("Infer: expected c typed `%s` but got `%s`",
-			ctype, resc.Name.Type().String())
+			ctype, resc.Name.(TypedName).Type().String())
 	}
-	par, ok := resc.Proc.(*Par)
+	par, ok := resc.Proc.(*asyncpi.Par)
 	if !ok {
 		t.Errorf("Parse: expected P|Q but got `%s`", par)
 	}
-	recva, ok := par.Procs[1].(*Recv)
+	recva, ok := par.Procs[1].(*asyncpi.Recv)
 	if !ok {
 		t.Errorf("Infer: expected a() but got `%s`", recva)
 	}
 	if len(recva.Vars) != 2 {
 		t.Errorf("Parse: expected a(y,z) but got a %d-tuple", len(recva.Vars))
 	}
-	if recva.Vars[0].Type().String() != ytype {
+	if recva.Vars[0].(TypedName).Type().String() != ytype {
 		t.Errorf("Infer: expected y typed `%s` but got `%s`",
-			ytype, recva.Vars[0].Type().String())
+			ytype, recva.Vars[0].(TypedName).Type().String())
 	}
-	sendb, ok := recva.Cont.(*Send)
+	sendb, ok := recva.Cont.(*asyncpi.Send)
 	if !ok {
 		t.Errorf("Infer: expected b<z> but got `%s`", sendb)
 	}
 	if len(sendb.Vals) != 1 {
 		t.Errorf("Parse: expected b<z> but got a %d-tuple", len(sendb.Vals))
 	}
-	if sendb.Vals[0].Type().String() != ztype {
+	if sendb.Vals[0].(TypedName).Type().String() != ztype {
 		t.Errorf("Infer: expected z typed `%s` but got `%s`",
-			ztype, sendb.Vals[0].Type().String())
+			ztype, sendb.Vals[0].(TypedName).Type().String())
 	}
 }
 
@@ -152,55 +154,55 @@ func TestWrongHintInferOnly(t *testing.T) {
 	ctype := "interface{}"
 	xtype := "interface{}" // type(b) if unified.
 	ytype := "interface{}" // type(c) if unified.
-	proc, err := Parse(strings.NewReader(simple))
+	proc, err := asyncpi.Parse(strings.NewReader(simple))
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new a)P but got `%s`", proc)
 	}
-	if resa.Name.Type().String() != atype {
+	if resa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: expected a typed `%s` but got `%s`",
-			atype, resa.Name.Type().String())
+			atype, resa.Name.(TypedName).Type().String())
 	}
-	resb, ok := resa.Proc.(*Restrict)
+	resb, ok := resa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new b)P but got `%s`", resa.Proc)
 	}
-	if resb.Name.Type().String() != btype {
+	if resb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: expected b typed `%s` but got `%s`",
-			btype, resb.Name.Type().String())
+			btype, resb.Name.(TypedName).Type().String())
 	}
-	resc, ok := resb.Proc.(*Restrict)
+	resc, ok := resb.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse expected (new c)P but got `%s`", resb.Proc)
 	}
-	if resc.Name.Type().String() != ctype {
+	if resc.Name.(TypedName).Type().String() != ctype {
 		t.Errorf("Infer: expected c typed `%s` but got `%s`",
-			ctype, resc.Name.Type().String())
+			ctype, resc.Name.(TypedName).Type().String())
 	}
-	par, ok := resc.Proc.(*Par)
+	par, ok := resc.Proc.(*asyncpi.Par)
 	if !ok {
 		t.Errorf("Parse: expected P|Q but got `%s`", resc.Proc)
 	}
-	recva, ok := par.Procs[1].(*Recv)
+	recva, ok := par.Procs[1].(*asyncpi.Recv)
 	if !ok {
 		t.Errorf("Parse: expected a(x,y) but got `%s`", par.Procs[1])
 	}
 	if len(recva.Vars) != 2 {
 		t.Errorf("Parse: expected a(x,y) but got a %d-tuple", len(recva.Vars))
 	}
-	if recva.Vars[0].Type().String() != xtype {
+	if recva.Vars[0].(TypedName).Type().String() != xtype {
 		t.Errorf("Infer: expected y typed `%s` but got `%s`",
-			xtype, recva.Vars[0].Type().String())
+			xtype, recva.Vars[0].(TypedName).Type().String())
 	}
-	if recva.Vars[1].Type().String() != ytype {
+	if recva.Vars[1].(TypedName).Type().String() != ytype {
 		t.Errorf("Infer: expected y typed `%s` but got `%s`",
-			ytype, recva.Vars[1].Type().String())
+			ytype, recva.Vars[1].(TypedName).Type().String())
 	}
 }
 
@@ -217,56 +219,56 @@ func TestWrongHintInferUnify(t *testing.T) {
 	ctype := "interface{}"
 	xtype := "T"           // type(b).
 	ytype := "interface{}" // type(c).
-	proc, err := Parse(strings.NewReader(simple))
+	proc, err := asyncpi.Parse(strings.NewReader(simple))
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
 
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new a)P but got `%s`", proc)
 	}
-	if resa.Name.Type().String() != atype {
+	if resa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: expected a typed `%s` but got `%s`",
-			atype, resa.Name.Type().String())
+			atype, resa.Name.(TypedName).Type().String())
 	}
-	resb, ok := resa.Proc.(*Restrict)
+	resb, ok := resa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new b)P but got `%s`", resa.Proc)
 	}
-	if resb.Name.Type().String() != btype {
+	if resb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: expected b typed `%s` but got `%s`",
-			btype, resb.Name.Type().String())
+			btype, resb.Name.(TypedName).Type().String())
 	}
-	resc, ok := resb.Proc.(*Restrict)
+	resc, ok := resb.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse expected (new c)P but got `%s`", resb.Proc)
 	}
-	if resc.Name.Type().String() != ctype {
+	if resc.Name.(TypedName).Type().String() != ctype {
 		t.Errorf("Infer: expected c typed `%s` but got `%s`",
-			ctype, resc.Name.Type().String())
+			ctype, resc.Name.(TypedName).Type().String())
 	}
-	par, ok := resc.Proc.(*Par)
+	par, ok := resc.Proc.(*asyncpi.Par)
 	if !ok {
 		t.Errorf("Parse: expected P|Q but got `%s`", resc.Proc)
 	}
-	recva, ok := par.Procs[1].(*Recv)
+	recva, ok := par.Procs[1].(*asyncpi.Recv)
 	if !ok {
 		t.Errorf("Parse: expected a(x,y) but got `%s`", par.Procs[1])
 	}
 	if len(recva.Vars) != 2 {
 		t.Errorf("Parse: expected a(x,y) but got a %d-tuple", len(recva.Vars))
 	}
-	if recva.Vars[0].Type().String() != xtype {
+	if recva.Vars[0].(TypedName).Type().String() != xtype {
 		t.Errorf("Infer: expected y typed `%s` but got `%s`",
-			xtype, recva.Vars[0].Type().String())
+			xtype, recva.Vars[0].(TypedName).Type().String())
 	}
-	if recva.Vars[1].Type().String() != ytype {
+	if recva.Vars[1].(TypedName).Type().String() != ytype {
 		t.Errorf("Infer: expected y typed `%s` but got `%s`",
-			ytype, recva.Vars[1].Type().String())
+			ytype, recva.Vars[1].(TypedName).Type().String())
 	}
 }
 
@@ -276,42 +278,42 @@ func TestHigherOrderInferOnly(t *testing.T) {
 	atype := "chan interface{}" // chan type(x) if unified.
 	btype := "interface{}"      // chan type(x) if unified.
 	xtype := "chan struct{}"
-	proc, err := Parse(strings.NewReader(input))
+	proc, err := asyncpi.Parse(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new a)P but got `%s`", proc)
 	}
-	if resa.Name.Type().String() != atype {
+	if resa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: expected a typed `%s` but got `%s`",
-			atype, resa.Name.Type().String())
+			atype, resa.Name.(TypedName).Type().String())
 	}
-	resb, ok := resa.Proc.(*Restrict)
+	resb, ok := resa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new b)P but got `%s`", resa.Proc)
 	}
-	if resb.Name.Type().String() != btype {
+	if resb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: expected b typed `%s` but got `%s`",
-			btype, resb.Name.Type().String())
+			btype, resb.Name.(TypedName).Type().String())
 	}
-	par, ok := resb.Proc.(*Par)
+	par, ok := resb.Proc.(*asyncpi.Par)
 	if !ok {
 		t.Errorf("Parse: expected P|Q but got `%s`", resb.Proc)
 	}
-	recva, ok := par.Procs[1].(*Recv)
+	recva, ok := par.Procs[1].(*asyncpi.Recv)
 	if !ok {
 		t.Errorf("Parse: expected a(x) but got `%s`", par.Procs[1])
 	}
 	if len(recva.Vars) != 1 {
 		t.Errorf("Parse: expected a(x) but got a %d-tuple", len(recva.Vars))
 	}
-	if recva.Vars[0].Type().String() != xtype {
+	if recva.Vars[0].(TypedName).Type().String() != xtype {
 		t.Errorf("Infer: expected x typed `%s` but got `%s`",
-			xtype, recva.Vars[0].Type().String())
+			xtype, recva.Vars[0].(TypedName).Type().String())
 	}
 }
 
@@ -322,43 +324,43 @@ func TestHigherOrderInferUnify(t *testing.T) {
 	atype := "chan chan struct{}" // chan type(x).
 	btype := "chan struct{}"      // chan type(x).
 	xtype := "chan struct{}"
-	proc, err := Parse(strings.NewReader(input))
+	proc, err := asyncpi.Parse(strings.NewReader(input))
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new a)P but got `%s`", proc)
 	}
-	if resa.Name.Type().String() != atype {
+	if resa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: expected a typed `%s` but got `%s`",
-			atype, resa.Name.Type().String())
+			atype, resa.Name.(TypedName).Type().String())
 	}
-	resb, ok := resa.Proc.(*Restrict)
+	resb, ok := resa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: expected (new b)P but got `%s`", resa.Proc)
 	}
-	if resb.Name.Type().String() != btype {
+	if resb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: expected b typed `%s` but got `%s`",
-			btype, resb.Name.Type().String())
+			btype, resb.Name.(TypedName).Type().String())
 	}
-	par, ok := resb.Proc.(*Par)
+	par, ok := resb.Proc.(*asyncpi.Par)
 	if !ok {
 		t.Errorf("Parse: expected P|Q but got `%s`", resb.Proc)
 	}
-	recva, ok := par.Procs[1].(*Recv)
+	recva, ok := par.Procs[1].(*asyncpi.Recv)
 	if !ok {
 		t.Errorf("Parse: expected a(x) but got `%s`", par.Procs[1])
 	}
 	if len(recva.Vars) != 1 {
 		t.Errorf("Parse: expected a(x) but got a %d-tuple", len(recva.Vars))
 	}
-	if recva.Vars[0].Type().String() != xtype {
+	if recva.Vars[0].(TypedName).Type().String() != xtype {
 		t.Errorf("Infer: expected x typed `%s` but got `%s`",
-			xtype, recva.Vars[0].Type().String())
+			xtype, recva.Vars[0].(TypedName).Type().String())
 	}
 }
 
@@ -372,37 +374,38 @@ func TestInferUnifyNested(t *testing.T) {
 	nested := "(new a)(new b)(new c:T)(a<b,c> | a(y,z).b<c,z>)"
 	atype := "chan struct{e0 chan struct{e0 T;e1 T};e1 T}"
 	btype := "chan struct{e0 T;e1 T}"
-	proc, err := Parse(strings.NewReader(nested))
+	proc, err := asyncpi.Parse(strings.NewReader(nested))
 	if err != nil {
 		t.Fatal(err)
 	}
-	resa, ok := proc.(*Restrict)
+	processAttachType(proc)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", nested)
 	}
-	if _, ok := resa.Name.Type().(*unTyped); !ok {
+	if _, ok := resa.Name.(TypedName).Type().(*anyType); !ok {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
-			atype, resa.Name.Type())
+			atype, resa.Name.(TypedName).Type())
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
-	inferredResa, ok := proc.(*Restrict)
+	inferredResa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", nested)
 	}
-	if inferredResa.Name.Type().String() != atype {
+	if inferredResa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: Type of `a` is not %s\ngot: %s",
-			atype, inferredResa.Name.Type())
+			atype, inferredResa.Name.(TypedName).Type())
 	}
-	inferredResb, ok := inferredResa.Proc.(*Restrict)
+	inferredResb, ok := inferredResa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction",
 			inferredResa.Calculi())
 	}
-	if inferredResb.Name.Type().String() != btype {
+	if inferredResb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: Type of `b` is not %s\ngot: %s",
-			btype, inferredResb.Name.Type())
+			btype, inferredResb.Name.(TypedName).Type())
 	}
 }
 
@@ -418,37 +421,37 @@ func TestInferUnifyNamePassing(t *testing.T) {
 	namePassing := "(new a)(new b)(new c:T)(a<b,c> | a(y,z).y<c,z>)"
 	atype := "chan struct{e0 chan struct{e0 T;e1 T};e1 T}"
 	btype := "chan struct{e0 T;e1 T}"
-	proc, err := Parse(strings.NewReader(namePassing))
+	proc, err := asyncpi.Parse(strings.NewReader(namePassing))
 	if err != nil {
 		t.Fatal(err)
 	}
-	resa, ok := proc.(*Restrict)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", namePassing)
 	}
-	if _, ok := resa.Name.Type().(*unTyped); !ok {
+	if _, ok := resa.Name.(TypedName).Type().(*unTypedName); !ok {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
-			atype, resa.Name.Type())
+			atype, resa.Name.(TypedName).Type())
 	}
-	proc = Bind(proc)
+	proc =asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
-	inferredResa, ok := proc.(*Restrict)
+	inferredResa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", namePassing)
 	}
-	if inferredResa.Name.Type().String() != atype {
+	if inferredResa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: Type of `a` is not %s\ngot: %s",
-			atype, inferredResa.Name.Type())
+			atype, inferredResa.Name.(TypedName).Type())
 	}
-	inferredResb, ok := inferredResa.Proc.(*Restrict)
+	inferredResb, ok := inferredResa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction",
 			inferredResa.Calculi())
 	}
-	if inferredResb.Name.Type().String() != btype {
+	if inferredResb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: Type of `b` is not %s\ngot: %s",
-			btype, inferredResb.Name.Type())
+			btype, inferredResb.Name.(TypedName).Type())
 	}
 }
 */
@@ -463,37 +466,38 @@ func TestInferNested(t *testing.T) {
 	nested := "(new a)(new b)(new c:T)(a<b,c> | a(y,z).y<z>)"
 	atype := "chan struct{e0 chan T;e1 T}"
 	btype := "chan T"
-	proc, err := Parse(strings.NewReader(nested))
+	proc, err := asyncpi.Parse(strings.NewReader(nested))
 	if err != nil {
 		t.Fatal(err)
 	}
-	resa, ok := proc.(*Restrict)
+	processAttachType(proc)
+	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", nested)
 	}
-	if _, ok := resa.Name.Type().(*unTyped); !ok {
+	if _, ok := resa.Name.(TypedName).Type().(*anyType); !ok {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
-			atype, resa.Name.Type())
+			atype, resa.Name.(TypedName).Type())
 	}
-	proc = Bind(proc)
+	proc = asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
-	inferredResa, ok := proc.(*Restrict)
+	inferredResa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", nested)
 	}
-	if inferredResa.Name.Type().String() != atype {
+	if inferredResa.Name.(TypedName).Type().String() != atype {
 		t.Errorf("Infer: Type of `a` is not %s\ngot: %s",
-			atype, inferredResa.Name.Type())
+			atype, inferredResa.Name.(TypedName).Type())
 	}
-	inferredResb, ok := inferredResa.Proc.(*Restrict)
+	inferredResb, ok := inferredResa.Proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction",
 			inferredResa.Calculi())
 	}
-	if inferredResb.Name.Type().String() != btype {
+	if inferredResb.Name.(TypedName).Type().String() != btype {
 		t.Errorf("Infer: Type of `b` is not %s\ngot: %s",
-			btype, inferredResb.Name.Type())
+			btype, inferredResb.Name.(TypedName).Type())
 	}
 }
 
@@ -502,11 +506,11 @@ func TestInferNested(t *testing.T) {
 // both a are compType because of the binding, but the args mismatches.
 func TestMismatchCompType(t *testing.T) {
 	incompat := `(new a,b)(a(b,c).0 | a<>)`
-	proc, err := Parse(strings.NewReader(incompat))
+	proc, err := asyncpi.Parse(strings.NewReader(incompat))
 	if err != nil {
 		t.Fatal(err)
 	}
-	bproc := Bind(proc)
+	bproc := asyncpi.Bind(proc)
 	Infer(bproc)
 	err = Unify(bproc)
 	if _, ok := err.(*TypeArityError); !ok {
@@ -517,11 +521,11 @@ func TestMismatchCompType(t *testing.T) {
 // Test receive with multiple compatible senders.
 func TestMultipleSender(t *testing.T) {
 	ms := `(new b)a(x).(x<b>|x<z>)`
-	proc, err := Parse(strings.NewReader(ms))
+	proc, err := asyncpi.Parse(strings.NewReader(ms))
 	if err != nil {
 		t.Fatal(err)
 	}
-	bproc := Bind(proc)
+	bproc := asyncpi.Bind(proc)
 	Infer(bproc)
 	if err := Unify(bproc); err != nil {
 		t.Fatal(err)
