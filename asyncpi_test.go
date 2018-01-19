@@ -223,21 +223,3 @@ func ExampleParse() {
 	//Send(b, [u])
 	//}
 }
-
-// This example shows how to generate code from a Process.
-func ExampleGenerateGo() {
-	proc, err := Parse(strings.NewReader("(new a)(new b)(a<b> | a(x).x<> | b().0)"))
-	if err != nil {
-		fmt.Println(err) // Parse failed
-	}
-	proc = Bind(proc)
-	Infer(proc)
-	err = Unify(proc)
-	if err != nil {
-		fmt.Println(err) // Unify failed
-	}
-	fmt.Println(proc.Golang())
-	// Output: a := make(chan chan struct{}); b := make(chan struct{}); go func(){ go func(){ a <- b; }()
-	//x := <-a;x <- struct{}{}; }()
-	//<-b;/* end */
-}

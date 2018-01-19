@@ -40,8 +40,6 @@ type Process interface {
 	FreeVars() []Name
 
 	Calculi() string
-	Golang() string
-
 	String() string
 }
 
@@ -66,11 +64,6 @@ func (n *NilProcess) FreeVars() []Name {
 // Calculi returns the calculi representation.
 func (n *NilProcess) Calculi() string {
 	return "0"
-}
-
-// Golang returns the Go representation.
-func (n *NilProcess) Golang() string {
-	return "/* end */"
 }
 
 func (n *NilProcess) String() string {
@@ -117,16 +110,6 @@ func (p *Par) Calculi() string {
 		log.Println("Executing template:", err)
 		return ""
 	}
-	return buf.String()
-}
-
-// Golang returns the Golang representation.
-func (p *Par) Golang() string {
-	var buf bytes.Buffer
-	for i := 0; i < len(p.Procs)-1; i++ {
-		buf.WriteString(fmt.Sprintf("go func(){ %s }()\n", p.Procs[i].Golang()))
-	}
-	buf.WriteString(p.Procs[len(p.Procs)-1].Golang())
 	return buf.String()
 }
 
@@ -205,35 +188,6 @@ func (r *Recv) Calculi() string {
 	return buf.String()
 }
 
-// Golang returns the Go representation.
-func (r *Recv) Golang() string {
-	var buf bytes.Buffer
-	switch len(r.Vars) {
-	case 0:
-		buf.WriteString(fmt.Sprintf("<-%s;", r.Chan.Name()))
-	case 1:
-		buf.WriteString(fmt.Sprintf("%s := <-%s;", r.Vars[0].Name(), r.Chan.Name()))
-	default:
-		buf.WriteString(fmt.Sprintf("rcvd := <-%s;", r.Chan.Name()))
-		for i, v := range r.Vars {
-			if i != 0 {
-				buf.WriteRune(',')
-			}
-			buf.WriteString(fmt.Sprintf("%s", v.Name()))
-		}
-		buf.WriteString(":=")
-		for i := 0; i < len(r.Vars); i++ {
-			if i != 0 {
-				buf.WriteRune(',')
-			}
-			buf.WriteString(fmt.Sprintf("rcvd.e%d", i))
-		}
-		buf.WriteRune(';')
-	}
-	buf.WriteString(r.Cont.Golang())
-	return buf.String()
-}
-
 func (r *Recv) String() string {
 	return fmt.Sprintf("Recv(%s, %s)\n%s", r.Chan.Name(), r.Vars, r.Cont)
 }
@@ -268,11 +222,6 @@ func (r *Repeat) Calculi() string {
 		return ""
 	}
 	return buf.String()
-}
-
-// Golang returns the Go representation.
-func (r *Repeat) Golang() string {
-	return fmt.Sprintf("for { %s };", r.Proc.Golang())
 }
 
 func (r *Repeat) String() string {
@@ -343,14 +292,6 @@ func (r *Restrict) Calculi() string {
 	return buf.String()
 }
 
-// Golang returns the Go representation.
-func (r *Restrict) Golang() string {
-	if chType, ok := r.Name.Type().(*chanType); ok { // channel is treated differently.
-		return fmt.Sprintf("%s := make(%s); %s", r.Name.Name(), chType.String(), r.Proc.Golang())
-	}
-	return fmt.Sprintf("var %s %s; %s", r.Name.Name(), r.Name.Type(), r.Proc.Golang())
-}
-
 func (r *Restrict) String() string {
 	return fmt.Sprintf("scope %s {\n%s}\n", r.Name, r.Proc)
 }
@@ -409,46 +350,6 @@ func (s *Send) Calculi() string {
 	return buf.String()
 }
 
-// Golang returns the Go representation.
-func (s *Send) Golang() string {
-	var buf bytes.Buffer
-	switch len(s.Vals) {
-	case 0:
-		buf.WriteString(fmt.Sprintf("%s <- struct{}{};", s.Chan.Name()))
-	case 1:
-		buf.WriteString(fmt.Sprintf("%s <- %s;", s.Chan.Name(), s.Vals[0].Name()))
-	default:
-		buf.WriteString(fmt.Sprintf("%s <- struct {", s.Chan.Name()))
-		for i := 0; i < len(s.Vals); i++ {
-			if i != 0 {
-				buf.WriteRune(';')
-			}
-			buf.WriteString(fmt.Sprintf("e%d %s", i, s.Vals[i].Type()))
-		}
-		buf.WriteString(fmt.Sprintf("}{"))
-		for i, v := range s.Vals {
-			if i != 0 {
-				buf.WriteRune(',')
-			}
-			buf.WriteString(v.Name())
-		}
-		buf.WriteString(fmt.Sprintf("}"))
-
-	}
-	return buf.String()
-}
-
 func (s *Send) String() string {
 	return fmt.Sprintf("Send(%s, %s)\n", s.Chan.Name(), s.Vals)
-}
-
-// GenerateGo generates Go code from a toplevel Process proc.
-func GenerateGo(proc Process) string {
-	proc = Bind(proc)
-	Infer(proc)
-	err := Unify(proc)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return proc.Golang()
 }
