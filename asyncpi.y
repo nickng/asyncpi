@@ -47,7 +47,7 @@ simpleproc : kNIL { $$ = NewNilProcess() }
            ;
 
 scopename : kNAME              { $$ = newPiName($1) }
-          | kNAME kCOLON kNAME { $$ = newTypedPiName($1, $3) }
+          | kNAME kCOLON kNAME { $$ = newHintedName(newPiName($1), $3) }
           ;
 
 scope : simpleproc           { $$ = $1 }

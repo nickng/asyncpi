@@ -9,18 +9,12 @@ import (
 // name is a concrete Name.
 type piName struct {
 	name string
-	t    Type
 	s    sorts
 }
 
 // newPiName creates a new concrete name from a string.
 func newPiName(n string) Name {
-	return &piName{name: n, t: NewUnTyped()}
-}
-
-// newTypedPiName creates a new concrete name with a type hint.
-func newTypedPiName(n, t string) Name {
-	return &piName{name: n, t: NewBaseType(t)}
+	return &piName{name: n}
 }
 
 // setSort sets the name sort.
@@ -54,27 +48,45 @@ func (n *piName) Name() string {
 	return n.name
 }
 
-// Type is the defined typed of the name.
-func (n *piName) Type() Type {
-	return n.t
-}
-
-// SetType sets the type of the name.
-func (n *piName) SetType(t Type) {
-	n.t = t
-}
-
 func (n *piName) String() string {
 	var buf bytes.Buffer
 	if n.s == varSort {
 		buf.WriteString("_")
 	}
-	if _, ok := n.t.(*unTyped); ok {
-		buf.WriteString(n.name)
-		return buf.String()
-	}
-	buf.WriteString(fmt.Sprintf("%s:%s", n.name, n.t.String()))
+	buf.WriteString(n.name)
 	return buf.String()
+}
+
+// hintedName represents a Name extended with type hint.
+type hintedName struct {
+	name Name
+	hint string
+}
+
+// newHintedName returns a new Name for the given n and t.
+func newHintedName(name Name, hint string) *hintedName {
+	return &hintedName{name, hint}
+}
+
+func (n *hintedName) FreeNames() []Name {
+	return n.name.FreeNames()
+}
+
+func (n *hintedName) FreeVars() []Name {
+	return n.name.FreeVars()
+}
+
+func (n *hintedName) Name() string {
+	return n.name.Name()
+}
+
+// TypeHint returns the type hint attached to given Name.
+func (n *hintedName) TypeHint() string {
+	return n.hint
+}
+
+type TypeHinter interface {
+	TypeHint() string
 }
 
 type NameVisitor interface {

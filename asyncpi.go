@@ -16,8 +16,6 @@ type Name interface {
 	FreeNames() []Name
 	FreeVars() []Name
 	Name() string
-	Type() Type
-	SetType(t Type)
 }
 
 type names []Name

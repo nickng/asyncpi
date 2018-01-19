@@ -556,7 +556,7 @@ asyncpidefault:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
 		//line asyncpi.y:50
 		{
-			asyncpiVAL.name = newTypedPiName(asyncpiDollar[1].strval, asyncpiDollar[3].strval)
+			asyncpiVAL.name = newHintedName(newPiName(asyncpiDollar[1].strval), asyncpiDollar[3].strval)
 		}
 	case 13:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
