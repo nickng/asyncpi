@@ -43,7 +43,8 @@ simpleproc : kNIL { $$ = NewNilProcess() }
            | kNAME kLPAREN names kRPAREN kPREFIX kLPAREN proc kRPAREN { $$ = NewRecv(newPiName($1), $7); $$.(*Recv).SetVars($3) }
            | kLPAREN kNEW scopename kRPAREN scope { $$ = NewRestrict($3, $5) }
            | kLPAREN kNEW scopename kCOMMA names kRPAREN scope { $$ = NewRestricts(append([]Name{$3}, $5...), $7) }
-           | kREPEAT proc { $$ = NewRepeat($2) }
+           | kREPEAT         proc { $$ = NewRepeat($2) }
+           | kREPEAT kLPAREN proc kRPAREN { $$ = NewRepeat($3) }
            ;
 
 scopename : kNAME              { $$ = newPiName($1) }

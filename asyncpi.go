@@ -5,10 +5,7 @@ package asyncpi
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"sort"
-
-	"text/template"
 )
 
 // Name is channel or value.
@@ -39,6 +36,7 @@ type Process interface {
 	FreeNames() []Name
 	FreeVars() []Name
 
+	// Calculi returns the calculi representation.
 	Calculi() string
 	String() string
 }
@@ -59,11 +57,6 @@ func (n *NilProcess) FreeNames() []Name {
 // FreeVars of NilProcess is defined to be empty.
 func (n *NilProcess) FreeVars() []Name {
 	return []Name{}
-}
-
-// Calculi returns the calculi representation.
-func (n *NilProcess) Calculi() string {
-	return "0"
 }
 
 func (n *NilProcess) String() string {
@@ -96,21 +89,6 @@ func (p *Par) FreeVars() []Name {
 	}
 	sort.Slice(fv, names(fv).Less)
 	return remDup(fv)
-}
-
-// Calculi returns the calculi representation.
-func (p *Par) Calculi() string {
-	buf := new(bytes.Buffer)
-	t := template.Must(template.New("par").Parse(`(
-{{- range $i, $p := .Procs -}}
-{{- if $i }} | {{ end -}}{{- $p.Calculi -}}
-{{- end -}})`))
-	err := t.Execute(buf, p)
-	if err != nil {
-		log.Println("Executing template:", err)
-		return ""
-	}
-	return buf.String()
 }
 
 func (p *Par) String() string {
@@ -172,22 +150,6 @@ func (r *Recv) FreeVars() []Name {
 	return remDup(ffv)
 }
 
-// Calculi returns the calculi representation.
-func (r *Recv) Calculi() string {
-	buf := new(bytes.Buffer)
-	t := template.Must(template.New("send").Parse(`
-{{- .Chan.Name -}}(
-{{- range $i, $v := .Vars -}}
-{{- if $i -}},{{- end -}}{{- $v.Name -}}
-{{- end -}}).{{ .Cont.Calculi }}`))
-	err := t.Execute(buf, r)
-	if err != nil {
-		log.Println("Executing template:", err)
-		return ""
-	}
-	return buf.String()
-}
-
 func (r *Recv) String() string {
 	return fmt.Sprintf("Recv(%s, %s)\n%s", r.Chan.Name(), r.Vars, r.Cont)
 }
@@ -210,18 +172,6 @@ func (r *Repeat) FreeNames() []Name {
 // FreeVars of Repeat are FreeVars in Proc.
 func (r *Repeat) FreeVars() []Name {
 	return r.Proc.FreeVars()
-}
-
-// Calculi returns the calculi representation.
-func (r *Repeat) Calculi() string {
-	buf := new(bytes.Buffer)
-	t := template.Must(template.New("rep").Parse(`!{{- .Proc.Calculi -}}`))
-	err := t.Execute(buf, r)
-	if err != nil {
-		log.Println("Executing template:", err)
-		return ""
-	}
-	return buf.String()
 }
 
 func (r *Repeat) String() string {
@@ -269,29 +219,6 @@ func (r *Restrict) FreeVars() []Name {
 	return r.Proc.FreeVars()
 }
 
-// Calculi returns the calculi representation.
-func (r *Restrict) Calculi() string {
-	buf := new(bytes.Buffer)
-	if _, ok := r.Proc.(*Par); ok {
-		t := template.Must(template.New("res").Parse(`(new {{ .Name.Name -}})(
-{{- .Proc.Calculi -}})`))
-		err := t.Execute(buf, r)
-		if err != nil {
-			log.Println("Executing template:", err)
-			return ""
-		}
-	} else {
-		t := template.Must(template.New("res").Parse(`(new {{ .Name.Name -}})
-{{- .Proc.Calculi -}}`))
-		err := t.Execute(buf, r)
-		if err != nil {
-			log.Println("Executing template:", err)
-			return ""
-		}
-	}
-	return buf.String()
-}
-
 func (r *Restrict) String() string {
 	return fmt.Sprintf("scope %s {\n%s}\n", r.Name, r.Proc)
 }
@@ -332,22 +259,6 @@ func (s *Send) FreeVars() []Name {
 	}
 	sort.Slice(fv, names(fv).Less)
 	return remDup(fv)
-}
-
-// Calculi returns the calculi representation.
-func (s *Send) Calculi() string {
-	buf := new(bytes.Buffer)
-	t := template.Must(template.New("send").Parse(`
-{{- .Chan.Name -}}<
-{{- range $i, $v := .Vals -}}
-{{- if $i -}},{{- end -}}{{- $v.Name -}}
-{{- end -}}>`))
-	err := t.Execute(buf, s)
-	if err != nil {
-		log.Println("Executing template:", err)
-		return ""
-	}
-	return buf.String()
 }
 
 func (s *Send) String() string {
