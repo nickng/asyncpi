@@ -148,19 +148,19 @@ func TestNameVarSort(t *testing.T) {
 	p := NewRecv(a, NewNilProcess())
 	p.Vars = append(p.Vars, b, x, y, z)
 	UpdateName(p, new(NameVarSorter))
-	if expect, got := nameSort, a.(*piName).s; expect != got {
+	if expect, got := nameSort, a.s; expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", a.Name(), expect, got)
 	}
-	if expect, got := nameSort, b.(*piName).s; expect != got {
+	if expect, got := nameSort, b.s; expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", b.Name(), expect, got)
 	}
-	if expect, got := varSort, x.(*piName).s; expect != got {
+	if expect, got := varSort, x.s; expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", x.Name(), expect, got)
 	}
-	if expect, got := varSort, y.(*piName).s; expect != got {
+	if expect, got := varSort, y.s; expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", y.Name(), expect, got)
 	}
-	if expect, got := varSort, z.(*piName).s; expect != got {
+	if expect, got := varSort, z.s; expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", z.Name(), expect, got)
 	}
 }

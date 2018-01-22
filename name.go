@@ -13,7 +13,7 @@ type piName struct {
 }
 
 // newPiName creates a new concrete name from a string.
-func newPiName(n string) Name {
+func newPiName(n string) *piName {
 	return &piName{name: n}
 }
 
