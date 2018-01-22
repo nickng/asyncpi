@@ -12,6 +12,16 @@ func (e *ParseError) Error() string {
 	return fmt.Sprintf("Parse failed at %s: %s", e.Pos, e.Err)
 }
 
+// ImmutableNameError is the type of error when trying
+// to modify a name without setter methods.
+type ImmutableNameError struct {
+	Name Name
+}
+
+func (e ImmutableNameError) Error() string {
+	return fmt.Sprintf("cannot modify name %v: immutable implementation of Name", e.Name.Name())
+}
+
 // UnknownProcessTypeError is the type of error for an unknown process type.
 type UnknownProcessTypeError struct {
 	Caller string

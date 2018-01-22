@@ -114,7 +114,7 @@ type nameSetter interface {
 	setName(string)
 }
 
-func UpdateName(proc Process, a NameVisitor) {
+func UpdateName(proc Process, a NameVisitor) error {
 	procs := []Process{proc}
 	for len(procs) > 0 {
 		p := procs[0]
@@ -128,10 +128,14 @@ func UpdateName(proc Process, a NameVisitor) {
 		case *Recv:
 			if n, ok := p.Chan.(nameSetter); ok {
 				n.setName(a.visit(p.Chan))
+			} else {
+				return ImmutableNameError{Name: p.Chan}
 			}
 			for i := range p.Vars {
 				if n, ok := p.Vars[i].(nameSetter); ok {
 					n.setName(a.visit(p.Vars[i]))
+				} else {
+					return ImmutableNameError{Name: p.Vars[i]}
 				}
 			}
 			procs = append(procs, p.Cont)
@@ -142,6 +146,8 @@ func UpdateName(proc Process, a NameVisitor) {
 			for i := range p.Vals {
 				if n, ok := p.Vals[i].(nameSetter); ok {
 					n.setName(a.visit(p.Vals[i]))
+				} else {
+					return ImmutableNameError{Name: p.Vals[i]}
 				}
 			}
 		case *Restrict:
@@ -153,4 +159,5 @@ func UpdateName(proc Process, a NameVisitor) {
 			log.Fatal(UnknownProcessTypeError{Caller: "UpdateName", Proc: p})
 		}
 	}
+	return nil
 }
