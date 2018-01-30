@@ -60,7 +60,7 @@ func (n *NilProcess) FreeVars() []Name {
 }
 
 func (n *NilProcess) String() string {
-	return "Inaction\n"
+	return "inact"
 }
 
 // Par is parallel composition of P and Q.
@@ -93,12 +93,14 @@ func (p *Par) FreeVars() []Name {
 
 func (p *Par) String() string {
 	var buf bytes.Buffer
+	buf.WriteRune('(')
 	for i, proc := range p.Procs {
 		if i != 0 {
-			buf.WriteString("--- parallel ---\n")
+			buf.WriteString("\n|")
 		}
 		buf.WriteString(proc.String())
 	}
+	buf.WriteRune(')')
 	return buf.String()
 }
 
@@ -151,7 +153,7 @@ func (r *Recv) FreeVars() []Name {
 }
 
 func (r *Recv) String() string {
-	return fmt.Sprintf("Recv(%s, %s)\n%s", r.Chan.Name(), r.Vars, r.Cont)
+	return fmt.Sprintf("recv(%s,%s).%s", r.Chan.Name(), r.Vars, r.Cont)
 }
 
 // Repeat is a replicated Process.
@@ -175,7 +177,7 @@ func (r *Repeat) FreeVars() []Name {
 }
 
 func (r *Repeat) String() string {
-	return fmt.Sprintf("repeat {\n%s}\n", r.Proc)
+	return fmt.Sprintf("repeat(%s)", r.Proc)
 }
 
 // Restrict is scope of Process.
@@ -220,7 +222,7 @@ func (r *Restrict) FreeVars() []Name {
 }
 
 func (r *Restrict) String() string {
-	return fmt.Sprintf("scope %s {\n%s}\n", r.Name, r.Proc)
+	return fmt.Sprintf("restrict(%s,%s)", r.Name, r.Proc)
 }
 
 // Send is output of Vals on channel Chan.
@@ -262,5 +264,5 @@ func (s *Send) FreeVars() []Name {
 }
 
 func (s *Send) String() string {
-	return fmt.Sprintf("Send(%s, %s)\n", s.Chan.Name(), s.Vals)
+	return fmt.Sprintf("send(%s,%s)", s.Chan.Name(), s.Vals)
 }

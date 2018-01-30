@@ -19,47 +19,33 @@ func init() {
 	TestCases = map[string]TestCase{
 		"NilProcess": {
 			Input:     `    0 `,
-			Output:    `Inaction`,
+			Output:    `inact`,
 			FreeNames: []Name{},
 		},
 		"Par": {
 			Input: `b().a().0 | b<> | (new x)x(a,b,c).0`,
-			Output: `Recv(b, [])
-Recv(a, [])
-Inaction
---- parallel ---
-Send(b, [])
---- parallel ---
-scope x {
-Recv(x, [a b c])
-Inaction
-}`, FreeNames: []Name{newPiName("a"), newPiName("b")},
+			Output: `((recv(b,[]).recv(a,[]).inact
+|send(b,[]))
+|restrict(x,recv(x,[a b c]).inact))`, FreeNames: newPiNames("a", "b"),
 		},
 		"Recv": {
-			Input: `a(b, c,d__).   0 `,
-			Output: `Recv(a, [b c d__])
-Inaction`,
-			FreeNames: []Name{newPiName("a")},
+			Input:     `a(b, c,d__).   0 `,
+			Output:    `recv(a,[b c d__]).inact`,
+			FreeNames: newPiNames("a"),
 		},
 		"Rep": {
-			Input: `! a().0`,
-			Output: `repeat {
-Recv(a, [])
-Inaction
-}`,
+			Input:     `! a().0`,
+			Output:    `repeat(recv(a,[]).inact)`,
 			FreeNames: []Name{newPiName("a")},
 		},
 		"Res": {
-			Input: `(new x)  x().0 `,
-			Output: `scope x {
-Recv(x, [])
-Inaction
-}`,
+			Input:     `(new x)  x().0 `,
+			Output:    `restrict(x,recv(x,[]).inact)`,
 			FreeNames: []Name{},
 		},
 		"Send": {
 			Input:     `a<b, e_, b> `,
-			Output:    `Send(a, [b e_ b])`,
+			Output:    `send(a,[b e_ b])`,
 			FreeNames: []Name{newPiName("a"), newPiName("b"), newPiName("e_")},
 		},
 	}
@@ -213,13 +199,7 @@ func ExampleParse() {
 		fmt.Println(err) // Parse failed
 	}
 	fmt.Println(proc.String())
-	// Output: scope a {
-	//Send(a, [v])
-	//--- parallel ---
-	//Recv(a, [x])
-	//Recv(b, [y])
-	//Inaction
-	//--- parallel ---
-	//Send(b, [u])
-	//}
+	// Output: restrict(a,((send(a,[v])
+	// |recv(a,[x]).recv(b,[y]).inact)
+	// |send(b,[u])))
 }

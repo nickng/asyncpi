@@ -57,6 +57,16 @@ func (n *piName) String() string {
 	return buf.String()
 }
 
+// newPiNames is a convenient utility function
+// for creating a []Name from given strings.
+func newPiNames(names ...string) []Name {
+	pn := make([]Name, len(names))
+	for i, n := range names {
+		pn[i] = newPiName(n)
+	}
+	return pn
+}
+
 // hintedName represents a Name extended with type hint.
 type hintedName struct {
 	name Name
