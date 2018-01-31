@@ -1,6 +1,9 @@
 package asyncpi
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // ParseError is the type of error when parsing an asyncpi process.
 type ParseError struct {
@@ -31,3 +34,5 @@ type UnknownProcessTypeError struct {
 func (e UnknownProcessTypeError) Error() string {
 	return fmt.Sprintf("%s: Unknown process type: %T", e.Caller, e.Proc)
 }
+
+var ErrInvalid = errors.New("invalid argument")

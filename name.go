@@ -171,3 +171,14 @@ func UpdateName(proc Process, a NameVisitor) error {
 	}
 	return nil
 }
+
+// IsSameName is a simple comparison operator for Name.
+// A Name x is equal with another Name y when x and y has the same name.
+// This comparison ignores the underlying representation (sort, type, etc.).
+func IsSameName(x, y Name) bool {
+	return x.Name() == y.Name()
+}
+
+func IsFreeName(x Name) bool {
+	return len(x.FreeNames()) == 1 && x.FreeNames()[0].Name() == x.Name()
+}
