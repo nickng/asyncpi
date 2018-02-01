@@ -127,6 +127,15 @@ func (r *Recv) FreeNames() []Name {
 	fn = append(fn, r.Chan.FreeNames()...)
 	fn = append(fn, r.Cont.FreeNames()...)
 	sort.Slice(fn, names(fn).Less)
+
+	for _, v := range r.Vars {
+		for i, n := range fn {
+			if IsSameName(v, n) {
+				fn = append(fn[:i], fn[i+1:]...)
+				break // next v
+			}
+		}
+	}
 	return remDup(fn)
 }
 
