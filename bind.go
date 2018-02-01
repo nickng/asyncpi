@@ -31,7 +31,7 @@ func bind(p Process, boundNames []Name) Process {
 		names = append(names, proc.Vars...)
 		for _, v := range proc.Vars {
 			for j := 0; j < len(names)-len(proc.Vars); j++ {
-				if v.Name() == names[j].Name() {
+				if IsSameName(v, names[j]) {
 					log.Println("Warning: rebinding name", v.Name(), "in recv")
 					names = append(names[:j], names[j+1:]...)
 				}
@@ -39,7 +39,7 @@ func bind(p Process, boundNames []Name) Process {
 		}
 		var chanBound bool
 		for i, bn := range names {
-			if proc.Chan.Name() == bn.Name() { // Found bound Chan
+			if IsSameName(proc.Chan, bn) { // Found bound Chan
 				proc.Chan = names[i]
 				chanBound = true
 			}
@@ -53,14 +53,14 @@ func bind(p Process, boundNames []Name) Process {
 		count := 0
 		for i, bn := range boundNames {
 			for j, v := range proc.Vals {
-				if bn.Name() == v.Name() { // Found bound name.
+				if IsSameName(v, bn) { // Found bound name.
 					proc.Vals[j] = boundNames[i]
 					count++
 				}
 			}
 		}
 		for i, bn := range boundNames {
-			if bn.Name() == proc.Chan.Name() { // Found bound Chan.
+			if IsSameName(proc.Chan, bn) { // Found bound Chan.
 				proc.Chan = boundNames[i]
 				count++
 			}
@@ -72,7 +72,7 @@ func bind(p Process, boundNames []Name) Process {
 	case *Restrict:
 		names := append(boundNames, proc.Name)
 		for i := 0; i < len(names)-1; i++ {
-			if names[i].Name() == proc.Name.Name() {
+			if IsSameName(proc.Name, names[i]) {
 				log.Println("Warning: rebinding name", proc.Name.Name(), "in restrict")
 				names = append(names[:i], names[i+1:]...)
 			}

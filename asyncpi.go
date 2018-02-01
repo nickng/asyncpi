@@ -208,7 +208,7 @@ func (r *Restrict) FreeNames() []Name {
 	fn = remDup(fn)
 
 	for i, n := range fn {
-		if n.Name() == r.Name.Name() {
+		if IsSameName(n, r.Name) {
 			fn = append(fn[:i], fn[i+1:]...)
 			break
 		}
