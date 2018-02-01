@@ -17,7 +17,8 @@ func bind(p Process, boundNames []Name) Process {
 	case *NilProcess:
 		return proc
 	case *Repeat:
-		return bind(proc.Proc, boundNames)
+		proc.Proc = bind(proc.Proc, boundNames)
+		return proc
 	case *Par:
 		for i := range proc.Procs {
 			bind(proc.Procs[i], boundNames)
