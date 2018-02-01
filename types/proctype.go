@@ -62,5 +62,4 @@ func ProcType(p asyncpi.Process) (string, error) {
 	default:
 		return "", asyncpi.UnknownProcessTypeError{Caller: "asyncpi/types.ProcTypes", Proc: p}
 	}
-	return "", nil
 }
