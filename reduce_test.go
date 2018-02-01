@@ -146,7 +146,7 @@ func TestReduceFreeRecvRecv(t *testing.T) {
 	if changed, err := reduceOnce(p); err != nil {
 		t.Fatalf("cannot reduce: %v", err)
 	} else if changed {
-		t.Fatalf("expects %s to note reduce but it changed to", proc, p.Calculi())
+		t.Fatalf("expects %s to note reduce but it changed to %s", proc, p.Calculi())
 	}
 	if changed, err := reduceOnce(p); err != nil {
 		t.Fatalf("cannot reduce: %v", err)
