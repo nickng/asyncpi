@@ -4,13 +4,13 @@ import "testing"
 
 func TestDefaultSort(t *testing.T) {
 	n := newPiName("name")
-	if expect, got := 1, len(n.FreeNames()); expect != got {
+	if expect, got := 1, len(FreeNames(n)); expect != got {
 		t.Errorf("Expecting %s to have %d free names but got %d. fn(%s) = %s",
-			n.Ident(), expect, got, n.Ident(), n.FreeNames())
+			n.Ident(), expect, got, n.Ident(), FreeNames(n))
 	}
-	if expect, got := 0, len(n.FreeVars()); expect != got {
+	if expect, got := 0, len(FreeVars(n)); expect != got {
 		t.Errorf("Expecting %s to have %d free vars but got %d. fv(%s) = %s",
-			n.Ident(), expect, got, n.Ident(), n.FreeVars())
+			n.Ident(), expect, got, n.Ident(), FreeVars(n))
 	}
 }
 

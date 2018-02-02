@@ -65,7 +65,7 @@ func TestFreeNames(t *testing.T) {
 	piNames := []Name{newPiName("a"), newPiName("c"), newPiName("b")}
 	freeNames := []Name{}
 	for _, name := range piNames {
-		freeNames = append(freeNames, name.FreeNames()...)
+		freeNames = append(freeNames, FreeNames(name)...)
 	}
 	sort.Slice(freeNames, names(freeNames).Less)
 	sort.Slice(piNames, names(piNames).Less)

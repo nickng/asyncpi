@@ -35,9 +35,7 @@ type TypedName interface {
 // typedName is a concrete typed Name.
 type typedName struct {
 	// name is the wrapped Name.
-	// The Name field shadows the Name() so all
-	// Name methods must be implemented.
-	name asyncpi.Name
+	asyncpi.Name
 
 	// t is the type for the wrapped Name.
 	t Type
@@ -46,18 +44,6 @@ type typedName struct {
 // newTypedName returns a new typed Name for the given Name.
 func newTypedName(n asyncpi.Name) *typedName {
 	return &typedName{n, newAnyType()}
-}
-
-func (n *typedName) FreeNames() []asyncpi.Name {
-	return n.name.FreeNames()
-}
-
-func (n *typedName) FreeVars() []asyncpi.Name {
-	return n.name.FreeVars()
-}
-
-func (n *typedName) Ident() string {
-	return n.name.Ident()
 }
 
 // Type returns the underlying Type of the wrapped Name.

@@ -69,25 +69,13 @@ func newPiNames(names ...string) []Name {
 
 // hintedName represents a Name extended with type hint.
 type hintedName struct {
-	name Name
+	Name
 	hint string
 }
 
 // newHintedName returns a new Name for the given n and t.
 func newHintedName(name Name, hint string) *hintedName {
 	return &hintedName{name, hint}
-}
-
-func (n *hintedName) FreeNames() []Name {
-	return n.name.FreeNames()
-}
-
-func (n *hintedName) FreeVars() []Name {
-	return n.name.FreeVars()
-}
-
-func (n *hintedName) Ident() string {
-	return n.name.Ident()
 }
 
 // TypeHint returns the type hint attached to given Name.
@@ -172,6 +160,34 @@ func UpdateName(proc Process, a NameVisitor) error {
 	return nil
 }
 
+// freeNameser is an interface which Name should
+// provide to have custom FreeNames implementation.
+type freeNameser interface {
+	FreeNames() []Name
+}
+
+// FreeNames returns the free names in a give Name n.
+func FreeNames(n Name) []Name {
+	if fn, ok := n.(freeNameser); ok {
+		return fn.FreeNames()
+	}
+	return []Name{n}
+}
+
+// freeVarser is an interface which Name should
+// provide to have custom FreeVars implementation.
+type freeVarser interface {
+	FreeVars() []Name
+}
+
+// FreeVars returns the free variables in a give Name n.
+func FreeVars(n Name) []Name {
+	if fv, ok := n.(freeVarser); ok {
+		return fv.FreeVars()
+	}
+	return nil
+}
+
 // IsSameName is a simple comparison operator for Name.
 // A Name x is equal with another Name y when x and y has the same name.
 // This comparison ignores the underlying representation (sort, type, etc.).
@@ -180,5 +196,5 @@ func IsSameName(x, y Name) bool {
 }
 
 func IsFreeName(x Name) bool {
-	return len(x.FreeNames()) == 1 && x.FreeNames()[0].Ident() == x.Ident()
+	return len(FreeNames(x)) == 1 && FreeNames(x)[0].Ident() == x.Ident()
 }

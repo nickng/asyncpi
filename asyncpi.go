@@ -10,9 +10,8 @@ import (
 
 // Name is channel or value.
 type Name interface {
-	FreeNames() []Name
-	FreeVars() []Name
 	Ident() string
+	String() string
 }
 
 type names []Name
@@ -124,7 +123,7 @@ func (r *Recv) SetVars(vars []Name) {
 // FreeNames of Recv is the channel and FreeNames of the continuation.
 func (r *Recv) FreeNames() []Name {
 	var fn []Name
-	fn = append(fn, r.Chan.FreeNames()...)
+	fn = append(fn, FreeNames(r.Chan)...)
 	fn = append(fn, r.Cont.FreeNames()...)
 	sort.Slice(fn, names(fn).Less)
 
@@ -156,7 +155,7 @@ func (r *Recv) FreeVars() []Name {
 			ffv = append(ffv, fv[i])
 		}
 	}
-	ffv = append(ffv, r.Chan.FreeVars()...)
+	ffv = append(ffv, FreeVars(r.Chan)...)
 	sort.Slice(ffv, names(ffv).Less)
 	return remDup(ffv)
 }
@@ -253,9 +252,9 @@ func (s *Send) SetVals(vals []Name) {
 // FreeNames of Send is the channel and the Vals.
 func (s *Send) FreeNames() []Name {
 	var fn []Name
-	fn = append(fn, s.Chan.FreeNames()...)
+	fn = append(fn, FreeNames(s.Chan)...)
 	for _, v := range s.Vals {
-		fn = append(fn, v.FreeNames()...)
+		fn = append(fn, FreeNames(v)...)
 	}
 	sort.Slice(fn, names(fn).Less)
 	return remDup(fn)
@@ -264,9 +263,9 @@ func (s *Send) FreeNames() []Name {
 // FreeVars of Send is the Vals.
 func (s *Send) FreeVars() []Name {
 	var fv []Name
-	fv = append(fv, s.Chan.FreeVars()...)
+	fv = append(fv, FreeVars(s.Chan)...)
 	for _, v := range s.Vals {
-		fv = append(fv, v.FreeVars()...)
+		fv = append(fv, FreeVars(v)...)
 	}
 	sort.Slice(fv, names(fv).Less)
 	return remDup(fv)
