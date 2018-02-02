@@ -63,13 +63,13 @@ func gen(p asyncpi.Process, w io.Writer) error {
 		return nil
 	case *asyncpi.Restrict:
 		if chType, ok := p.Name.(types.TypedName).Type().(*types.Chan); ok { // channel is treated differently.
-			w.Write([]byte(fmt.Sprintf("%s := make(%s); ", p.Name.(types.TypedName).Name(), chType.String())))
+			w.Write([]byte(fmt.Sprintf("%s := make(%s); ", p.Name.(types.TypedName).Ident(), chType.String())))
 			if err := gen(p.Proc, w); err != nil {
 				return err
 			}
 			return nil
 		}
-		w.Write([]byte(fmt.Sprintf("var %s %s; ", p.Name.Name(), p.Name.(types.TypedName).Type())))
+		w.Write([]byte(fmt.Sprintf("var %s %s; ", p.Name.Ident(), p.Name.(types.TypedName).Type())))
 		if err := gen(p.Proc, w); err != nil {
 			return err
 		}
@@ -78,16 +78,16 @@ func gen(p asyncpi.Process, w io.Writer) error {
 		var buf bytes.Buffer
 		switch len(p.Vars) {
 		case 0:
-			buf.WriteString(fmt.Sprintf("<-%s;", p.Chan.Name()))
+			buf.WriteString(fmt.Sprintf("<-%s;", p.Chan.Ident()))
 		case 1:
-			buf.WriteString(fmt.Sprintf("%s := <-%s;", p.Vars[0].Name(), p.Chan.Name()))
+			buf.WriteString(fmt.Sprintf("%s := <-%s;", p.Vars[0].Ident(), p.Chan.Ident()))
 		default:
-			buf.WriteString(fmt.Sprintf("rcvd := <-%s;", p.Chan.Name()))
+			buf.WriteString(fmt.Sprintf("rcvd := <-%s;", p.Chan.Ident()))
 			for i, v := range p.Vars {
 				if i != 0 {
 					buf.WriteRune(',')
 				}
-				buf.WriteString(fmt.Sprintf("%s", v.Name()))
+				buf.WriteString(fmt.Sprintf("%s", v.Ident()))
 			}
 			buf.WriteString(":=")
 			for i := 0; i < len(p.Vars); i++ {
@@ -107,11 +107,11 @@ func gen(p asyncpi.Process, w io.Writer) error {
 		var buf bytes.Buffer
 		switch len(p.Vals) {
 		case 0:
-			buf.WriteString(fmt.Sprintf("%s <- struct{}{};", p.Chan.Name()))
+			buf.WriteString(fmt.Sprintf("%s <- struct{}{};", p.Chan.Ident()))
 		case 1:
-			buf.WriteString(fmt.Sprintf("%s <- %s;", p.Chan.Name(), p.Vals[0].Name()))
+			buf.WriteString(fmt.Sprintf("%s <- %s;", p.Chan.Ident(), p.Vals[0].Ident()))
 		default:
-			buf.WriteString(fmt.Sprintf("%s <- struct {", p.Chan.Name()))
+			buf.WriteString(fmt.Sprintf("%s <- struct {", p.Chan.Ident()))
 			for i := 0; i < len(p.Vals); i++ {
 				if i != 0 {
 					buf.WriteRune(';')
@@ -123,7 +123,7 @@ func gen(p asyncpi.Process, w io.Writer) error {
 				if i != 0 {
 					buf.WriteRune(',')
 				}
-				buf.WriteString(v.Name())
+				buf.WriteString(v.Ident())
 			}
 			buf.WriteString(fmt.Sprintf("}"))
 		}

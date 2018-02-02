@@ -25,19 +25,19 @@ const parTmpl = `(
 {{- if $i }} | {{ end -}}{{- $p.Calculi -}}
 {{- end -}})`
 
-const recvTmpl = `{{- .Chan.Name -}}(
+const recvTmpl = `{{- .Chan.Ident -}}(
 {{- range $i, $v := .Vars -}}
-{{- if $i -}},{{- end -}}{{- $v.Name -}}
+{{- if $i -}},{{- end -}}{{- $v.Ident -}}
 {{- end -}}).{{ .Cont.Calculi }}`
 
-const sendTmpl = `{{- .Chan.Name -}}<
+const sendTmpl = `{{- .Chan.Ident -}}<
 {{- range $i, $v := .Vals -}}
-{{- if $i -}},{{- end -}}{{- $v.Name -}}
+{{- if $i -}},{{- end -}}{{- $v.Ident -}}
 {{- end -}}>`
 
 const repTmpl = `!{{- .Proc.Calculi -}}`
 
-const resTmpl = `(new {{ .Name.Name -}}){{- .Proc.Calculi -}}`
+const resTmpl = `(new {{ .Name.Ident -}}){{- .Proc.Calculi -}}`
 
 var (
 	parT  = template.Must(template.New("").Parse(parTmpl))

@@ -55,7 +55,7 @@ func init() {
 func TestFreeName(t *testing.T) {
 	name := newPiName("a")
 	freeNames := name.FreeNames()
-	if len(freeNames) == 1 && freeNames[0].Name() != name.Name() {
+	if len(freeNames) == 1 && freeNames[0].Ident() != name.Ident() {
 		t.Errorf("FreeName: fn(a) does not match a: `%s` vs `%s`", freeNames, name)
 	}
 }
@@ -74,7 +74,7 @@ func TestFreeNames(t *testing.T) {
 		t.Fail()
 	}
 	for i := range piNames {
-		if piNames[i].Name() != freeNames[i].Name() {
+		if piNames[i].Ident() != freeNames[i].Ident() {
 			t.Errorf("FreeNames: fn(a...) does not match a...: `%s` vs `%s`", freeNames, piNames)
 		}
 	}
@@ -119,7 +119,7 @@ func TestParFreeVar(t *testing.T) {
 	}
 	for i := range test.FreeNames {
 		fn := proc.FreeNames()[i]
-		if fn.Name() != test.FreeNames[i].Name() {
+		if fn.Ident() != test.FreeNames[i].Ident() {
 			t.Errorf("FreeNames(par): parsed and test case do not match: `%s` vs `%s`",
 				fn, test.FreeNames[i])
 		}

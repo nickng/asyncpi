@@ -23,13 +23,13 @@ func Subst(p Process, vs, xs []Name) error {
 			for i, x := range xs {
 				if IsSameName(p.Chan, x) {
 					if ch, canSetName := p.Chan.(nameSetter); canSetName {
-						ch.setName(vs[i].Name())
+						ch.setName(vs[i].Ident())
 					}
 				}
 				for _, rv := range p.Vars {
 					if IsSameName(rv, x) {
 						if ch, canSetName := rv.(nameSetter); canSetName {
-							ch.setName(vs[i].Name())
+							ch.setName(vs[i].Ident())
 						}
 					}
 				}
@@ -43,7 +43,7 @@ func Subst(p Process, vs, xs []Name) error {
 			for i, x := range xs {
 				if IsSameName(p.Chan, x) {
 					if ch, canSetName := p.Chan.(nameSetter); canSetName {
-						ch.setName(vs[i].Name())
+						ch.setName(vs[i].Ident())
 					}
 				}
 			}
@@ -75,7 +75,7 @@ func reduceOnce(p Process) (changed bool, err error) {
 					recvs = make(map[string]*Process)
 				}
 				if IsFreeName(proc.Chan) {
-					ch := proc.Chan.Name()
+					ch := proc.Chan.Ident()
 					// Do not overwrite existing subprocess with same channel.
 					// Substitution only consider leftmost available names.
 					if _, exists := recvs[ch]; !exists {
@@ -87,7 +87,7 @@ func reduceOnce(p Process) (changed bool, err error) {
 					sends = make(map[string]*Process)
 				}
 				if IsFreeName(proc.Chan) {
-					ch := proc.Chan.Name()
+					ch := proc.Chan.Ident()
 					// Do not overwrite existing subprocess with same channel.
 					// Substitution only consider leftmost available names.
 					if _, exists := sends[ch]; !exists {
@@ -166,11 +166,11 @@ func findUnusedRestrict(p Process) (unused []Name, err error) {
 		case *Par:
 			procs = append(procs, p.Procs...)
 		case *Recv:
-			if rc, exists := resUses[p.Chan.Name()]; exists {
+			if rc, exists := resUses[p.Chan.Ident()]; exists {
 				rc.Count++
 			}
 			for _, v := range p.Vars {
-				if rc, exists := resUses[v.Name()]; exists {
+				if rc, exists := resUses[v.Ident()]; exists {
 					rc.Count++
 				}
 			}
@@ -178,14 +178,14 @@ func findUnusedRestrict(p Process) (unused []Name, err error) {
 		case *Repeat:
 			procs = append(procs, p.Proc)
 		case *Restrict:
-			resUses[p.Name.Name()] = &rescount{ResName: p.Name, Count: 1}
+			resUses[p.Name.Ident()] = &rescount{ResName: p.Name, Count: 1}
 			procs = append(procs, p.Proc)
 		case *Send:
-			if rc, exists := resUses[p.Chan.Name()]; exists {
+			if rc, exists := resUses[p.Chan.Ident()]; exists {
 				rc.Count++
 			}
 			for _, v := range p.Vals {
-				if rc, exists := resUses[v.Name()]; exists {
+				if rc, exists := resUses[v.Ident()]; exists {
 					rc.Count++
 
 				}

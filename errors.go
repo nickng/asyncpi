@@ -22,7 +22,7 @@ type ImmutableNameError struct {
 }
 
 func (e ImmutableNameError) Error() string {
-	return fmt.Sprintf("cannot modify name %v: immutable implementation of Name", e.Name.Name())
+	return fmt.Sprintf("cannot modify name %v: immutable implementation of Name", e.Name.Ident())
 }
 
 // UnknownProcessTypeError is the type of error for an unknown process type.

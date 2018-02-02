@@ -56,8 +56,8 @@ func (n *typedName) FreeVars() []asyncpi.Name {
 	return n.name.FreeVars()
 }
 
-func (n *typedName) Name() string {
-	return n.name.Name()
+func (n *typedName) Ident() string {
+	return n.name.Ident()
 }
 
 // Type returns the underlying Type of the wrapped Name.

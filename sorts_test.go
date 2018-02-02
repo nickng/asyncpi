@@ -6,11 +6,11 @@ func TestDefaultSort(t *testing.T) {
 	n := newPiName("name")
 	if expect, got := 1, len(n.FreeNames()); expect != got {
 		t.Errorf("Expecting %s to have %d free names but got %d. fn(%s) = %s",
-			n.Name(), expect, got, n.Name(), n.FreeNames())
+			n.Ident(), expect, got, n.Ident(), n.FreeNames())
 	}
 	if expect, got := 0, len(n.FreeVars()); expect != got {
 		t.Errorf("Expecting %s to have %d free vars but got %d. fv(%s) = %s",
-			n.Name(), expect, got, n.Name(), n.FreeVars())
+			n.Ident(), expect, got, n.Ident(), n.FreeVars())
 	}
 }
 
@@ -149,18 +149,18 @@ func TestNameVarSort(t *testing.T) {
 	p.Vars = append(p.Vars, b, x, y, z)
 	UpdateName(p, new(NameVarSorter))
 	if expect, got := nameSort, a.s; expect != got {
-		t.Errorf("Expecting %s sort to be %d but got %d.", a.Name(), expect, got)
+		t.Errorf("Expecting %s sort to be %d but got %d.", a.Ident(), expect, got)
 	}
 	if expect, got := nameSort, b.s; expect != got {
-		t.Errorf("Expecting %s sort to be %d but got %d.", b.Name(), expect, got)
+		t.Errorf("Expecting %s sort to be %d but got %d.", b.Ident(), expect, got)
 	}
 	if expect, got := varSort, x.s; expect != got {
-		t.Errorf("Expecting %s sort to be %d but got %d.", x.Name(), expect, got)
+		t.Errorf("Expecting %s sort to be %d but got %d.", x.Ident(), expect, got)
 	}
 	if expect, got := varSort, y.s; expect != got {
-		t.Errorf("Expecting %s sort to be %d but got %d.", y.Name(), expect, got)
+		t.Errorf("Expecting %s sort to be %d but got %d.", y.Ident(), expect, got)
 	}
 	if expect, got := varSort, z.s; expect != got {
-		t.Errorf("Expecting %s sort to be %d but got %d.", z.Name(), expect, got)
+		t.Errorf("Expecting %s sort to be %d but got %d.", z.Ident(), expect, got)
 	}
 }

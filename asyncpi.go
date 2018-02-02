@@ -12,20 +12,20 @@ import (
 type Name interface {
 	FreeNames() []Name
 	FreeVars() []Name
-	Name() string
+	Ident() string
 }
 
 type names []Name
 
-func (n names) Less(i, j int) bool { return n[i].Name() < n[j].Name() }
+func (n names) Less(i, j int) bool { return n[i].Ident() < n[j].Ident() }
 
 // remDup removes duplicate Names from sorted []Name.
 func remDup(names []Name) []Name {
 	m := make(map[string]bool)
 	for _, name := range names {
-		if _, seen := m[name.Name()]; !seen {
+		if _, seen := m[name.Ident()]; !seen {
 			names[len(m)] = name
-			m[name.Name()] = true
+			m[name.Ident()] = true
 		}
 	}
 	return names[:len(m)]
@@ -147,10 +147,10 @@ func (r *Recv) FreeVars() []Name {
 
 	ffv := fv[:0] // filtered
 	for i, j := 0, 0; i < len(fv); i++ {
-		for j < len(r.Vars) && r.Vars[j].Name() < fv[i].Name() {
+		for j < len(r.Vars) && r.Vars[j].Ident() < fv[i].Ident() {
 			j++
 		}
-		if j < len(r.Vars) && r.Vars[j].Name() != fv[i].Name() { // overshoot
+		if j < len(r.Vars) && r.Vars[j].Ident() != fv[i].Ident() { // overshoot
 			ffv = append(ffv, fv[i])
 		} else if i >= len(r.Vars) { // remaining
 			ffv = append(ffv, fv[i])
@@ -162,7 +162,7 @@ func (r *Recv) FreeVars() []Name {
 }
 
 func (r *Recv) String() string {
-	return fmt.Sprintf("recv(%s,%s).%s", r.Chan.Name(), r.Vars, r.Cont)
+	return fmt.Sprintf("recv(%s,%s).%s", r.Chan.Ident(), r.Vars, r.Cont)
 }
 
 // Repeat is a replicated Process.
@@ -273,5 +273,5 @@ func (s *Send) FreeVars() []Name {
 }
 
 func (s *Send) String() string {
-	return fmt.Sprintf("send(%s,%s)", s.Chan.Name(), s.Vals)
+	return fmt.Sprintf("send(%s,%s)", s.Chan.Ident(), s.Vals)
 }

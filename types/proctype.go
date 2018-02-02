@@ -27,13 +27,13 @@ func ProcType(p asyncpi.Process) (string, error) {
 	case *asyncpi.NilProcess:
 		return "0", nil
 	case *asyncpi.Send:
-		return fmt.Sprintf("%s!%s", p.Chan.Name(), p.Chan.(TypedName).Type()), nil
+		return fmt.Sprintf("%s!%s", p.Chan.Ident(), p.Chan.(TypedName).Type()), nil
 	case *asyncpi.Recv:
 		proc, err := ProcType(p.Cont)
 		if err != nil {
 			return proc, err
 		}
-		return fmt.Sprintf("%s?%s; %s", p.Chan.Name(), p.Chan.(TypedName).Type(), proc), nil
+		return fmt.Sprintf("%s?%s; %s", p.Chan.Ident(), p.Chan.(TypedName).Type(), proc), nil
 	case *asyncpi.Par:
 		var buf bytes.Buffer
 		for i, ps := range p.Procs {
@@ -58,7 +58,7 @@ func ProcType(p asyncpi.Process) (string, error) {
 		if err != nil {
 			return proc, err
 		}
-		return fmt.Sprintf("(ν%s:%s) %s", p.Name.Name(), p.Name.(TypedName).Type(), proc), nil
+		return fmt.Sprintf("(ν%s:%s) %s", p.Name.Ident(), p.Name.(TypedName).Type(), proc), nil
 	default:
 		return "", asyncpi.UnknownProcessTypeError{Caller: "asyncpi/types.ProcTypes", Proc: p}
 	}

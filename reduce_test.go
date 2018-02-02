@@ -26,7 +26,7 @@ func TestReduceSendRecv(t *testing.T) {
 	if !ok {
 		t.Fatalf("expects *Recv but got %s (type %T)", p.Calculi(), p)
 	}
-	if want, got := "b", p2.Chan.Name(); want != got {
+	if want, got := "b", p2.Chan.Ident(); want != got {
 		t.Fatalf("expects receive on %s but got %s", want, got)
 	}
 	_, ok = p2.Cont.(*NilProcess)
@@ -56,7 +56,7 @@ func TestReduceRecvSend(t *testing.T) {
 	if !ok {
 		t.Fatalf("expects *Send but got %s (type %T)", p.Calculi(), p)
 	}
-	if want, got := "b", p2.Chan.Name(); want != got {
+	if want, got := "b", p2.Chan.Ident(); want != got {
 		t.Fatalf("expects send on %s but got %s", want, got)
 	}
 }
@@ -82,14 +82,14 @@ func TestReduceBoundRecvSend(t *testing.T) {
 	if !ok {
 		t.Fatalf("expects a *Restrict but got %s (type %T)", p.Calculi(), p)
 	}
-	if want, got := "b", p2.Name.Name(); want != got {
+	if want, got := "b", p2.Name.Ident(); want != got {
 		t.Fatalf("expects restrict on %s but got %s", want, got)
 	}
 	p3, ok := p2.Proc.(*Send)
 	if !ok {
 		t.Fatalf("expects *Send but got %s (type %T)", p2.Calculi(), p2)
 	}
-	if want, got := "b", p3.Chan.Name(); want != got {
+	if want, got := "b", p3.Chan.Ident(); want != got {
 		t.Fatalf("expects send on %s but got %s", want, got)
 	}
 }

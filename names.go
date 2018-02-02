@@ -43,8 +43,8 @@ func (n *piName) FreeVars() []Name {
 	return []Name{}
 }
 
-// Name is the string identifier of a name.
-func (n *piName) Name() string {
+// Ident is the string identifier of a name.
+func (n *piName) Ident() string {
 	return n.name
 }
 
@@ -86,8 +86,8 @@ func (n *hintedName) FreeVars() []Name {
 	return n.name.FreeVars()
 }
 
-func (n *hintedName) Name() string {
-	return n.name.Name()
+func (n *hintedName) Ident() string {
+	return n.name.Ident()
 }
 
 // TypeHint returns the type hint attached to given Name.
@@ -115,7 +115,7 @@ func (u *Uniquefier) visit(n Name) string {
 	if un, ok := u.names[n]; ok {
 		return un
 	}
-	s := fmt.Sprintf("%s_%d", n.Name(), len(u.names))
+	s := fmt.Sprintf("%s_%d", n.Ident(), len(u.names))
 	u.names[n] = s
 	return s
 }
@@ -176,9 +176,9 @@ func UpdateName(proc Process, a NameVisitor) error {
 // A Name x is equal with another Name y when x and y has the same name.
 // This comparison ignores the underlying representation (sort, type, etc.).
 func IsSameName(x, y Name) bool {
-	return x.Name() == y.Name()
+	return x.Ident() == y.Ident()
 }
 
 func IsFreeName(x Name) bool {
-	return len(x.FreeNames()) == 1 && x.FreeNames()[0].Name() == x.Name()
+	return len(x.FreeNames()) == 1 && x.FreeNames()[0].Ident() == x.Ident()
 }

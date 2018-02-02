@@ -78,7 +78,7 @@ func processInferType(p asyncpi.Process) error {
 			return err
 		}
 		if _, isTyped := p.Chan.(TypedName); !isTyped {
-			return InferUntypedError{Name: p.Chan.Name()}
+			return InferUntypedError{Name: p.Chan.Ident()}
 		}
 		// But that's all we know right now.
 		if _, ok := p.Chan.(TypedName).Type().(*anyType); ok { // do not overwrite existing type
@@ -86,7 +86,7 @@ func processInferType(p asyncpi.Process) error {
 			for i := range p.Vars {
 				tv, isTyped := p.Vars[i].(TypedName)
 				if !isTyped {
-					return InferUntypedError{Name: p.Vars[i].Name()}
+					return InferUntypedError{Name: p.Vars[i].Ident()}
 				}
 				if refType, isRef := tv.Type().(*Reference); isRef { // already a Reference
 					tvs = append(tvs, refType)
@@ -111,12 +111,12 @@ func processInferType(p asyncpi.Process) error {
 		}
 	case *asyncpi.Send: // Send is the only place we can infer channel type.
 		if _, isTyped := p.Chan.(TypedName); !isTyped {
-			return InferUntypedError{Name: p.Chan.Name()}
+			return InferUntypedError{Name: p.Chan.Ident()}
 		}
 		var tvs []Type
 		for i := range p.Vals {
 			if _, isTyped := p.Vals[i].(TypedName); !isTyped {
-				return InferUntypedError{Name: p.Vals[i].Name()}
+				return InferUntypedError{Name: p.Vals[i].Ident()}
 			}
 			if refType, isRef := p.Vals[i].(TypedName).Type().(*Reference); isRef { // already a Reference
 				tvs = append(tvs, refType)
@@ -154,7 +154,7 @@ func Unify(p asyncpi.Process) error {
 	case *asyncpi.Recv:
 		ch, isTyped := p.Chan.(TypedName)
 		if !isTyped {
-			return InferUntypedError{Name: p.Chan.Name()}
+			return InferUntypedError{Name: p.Chan.Ident()}
 		}
 		// chType is either
 		// - a compType with refType fields (including struct{})
@@ -164,7 +164,7 @@ func Unify(p asyncpi.Process) error {
 		for _, v := range p.Vars {
 			tv, isTyped := v.(TypedName)
 			if !isTyped {
-				return InferUntypedError{Name: v.Name()}
+				return InferUntypedError{Name: v.Ident()}
 			}
 			tns = append(tns, tv)
 		}
@@ -175,7 +175,7 @@ func Unify(p asyncpi.Process) error {
 				return &TypeArityError{
 					Got:      len(varType.(*Composite).Elems()),
 					Expected: 1,
-					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Name()),
+					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Ident()),
 				}
 			}
 			if _, ok := tns[0].Type().(*anyType); ok {
@@ -189,7 +189,7 @@ func Unify(p asyncpi.Process) error {
 					return &TypeError{
 						T:   varType,
 						U:   tns[0].Type(),
-						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", p.Chan.Name()),
+						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", p.Chan.Ident()),
 					}
 				}
 			}
@@ -199,13 +199,13 @@ func Unify(p asyncpi.Process) error {
 				return &TypeArityError{
 					Got:      1,
 					Expected: len(p.Vars),
-					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Name()),
+					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Ident()),
 				}
 			} else if len(tns) != len(compT.Elems()) {
 				return &TypeArityError{
 					Got:      len(compT.Elems()),
 					Expected: len(p.Vars),
-					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Name()),
+					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Ident()),
 				}
 			}
 			for i := range tns {
@@ -219,7 +219,7 @@ func Unify(p asyncpi.Process) error {
 					return &TypeError{
 						T:   varType,
 						U:   tns[i].Type(),
-						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", p.Chan.Name()),
+						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", p.Chan.Ident()),
 					}
 				}
 			}

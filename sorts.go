@@ -104,11 +104,11 @@ func ResetSorts(proc Process) {
 type NameVarSorter struct{}
 
 func (s *NameVarSorter) visit(n Name) string {
-	r, _ := utf8.DecodeRuneInString(n.Name())
+	r, _ := utf8.DecodeRuneInString(n.Ident())
 	if strings.ContainsRune("nopqrstuvwxyz", r) {
 		if s, ok := n.(sortSetter); ok {
 			s.setSort(varSort)
 		}
 	}
-	return n.Name()
+	return n.Ident()
 }

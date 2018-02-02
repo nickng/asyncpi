@@ -33,7 +33,7 @@ func bind(p Process, boundNames []Name) Process {
 		for _, v := range proc.Vars {
 			for j := 0; j < len(names)-len(proc.Vars); j++ {
 				if IsSameName(v, names[j]) {
-					log.Println("Warning: rebinding name", v.Name(), "in recv")
+					log.Println("Warning: rebinding name", v.Ident(), "in recv")
 					names = append(names[:j], names[j+1:]...)
 				}
 			}
@@ -74,7 +74,7 @@ func bind(p Process, boundNames []Name) Process {
 		names := append(boundNames, proc.Name)
 		for i := 0; i < len(names)-1; i++ {
 			if IsSameName(proc.Name, names[i]) {
-				log.Println("Warning: rebinding name", proc.Name.Name(), "in restrict")
+				log.Println("Warning: rebinding name", proc.Name.Ident(), "in restrict")
 				names = append(names[:i], names[i+1:]...)
 			}
 		}
