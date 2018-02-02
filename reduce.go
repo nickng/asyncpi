@@ -22,14 +22,14 @@ func Subst(p Process, vs, xs []Name) error {
 		case *Recv:
 			for i, x := range xs {
 				if IsSameName(p.Chan, x) {
-					if ch, canSetName := p.Chan.(nameSetter); canSetName {
-						ch.setName(vs[i].Ident())
+					if ch, canSetName := p.Chan.(NameSetter); canSetName {
+						ch.SetName(vs[i].Ident())
 					}
 				}
 				for _, rv := range p.Vars {
 					if IsSameName(rv, x) {
-						if ch, canSetName := rv.(nameSetter); canSetName {
-							ch.setName(vs[i].Ident())
+						if ch, canSetName := rv.(NameSetter); canSetName {
+							ch.SetName(vs[i].Ident())
 						}
 					}
 				}
@@ -42,8 +42,8 @@ func Subst(p Process, vs, xs []Name) error {
 		case *Send:
 			for i, x := range xs {
 				if IsSameName(p.Chan, x) {
-					if ch, canSetName := p.Chan.(nameSetter); canSetName {
-						ch.setName(vs[i].Ident())
+					if ch, canSetName := p.Chan.(NameSetter); canSetName {
+						ch.SetName(vs[i].Ident())
 					}
 				}
 			}

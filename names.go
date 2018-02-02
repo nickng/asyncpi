@@ -22,8 +22,8 @@ func (n *piName) setSort(s sorts) {
 	n.s = s
 }
 
-// setName sets the internal name.
-func (n *piName) setName(name string) {
+// SetName sets the internal name.
+func (n *piName) SetName(name string) {
 	n.name = name
 }
 
@@ -108,8 +108,8 @@ func (u *Uniquefier) visit(n Name) string {
 	return s
 }
 
-type nameSetter interface {
-	setName(string)
+type NameSetter interface {
+	SetName(string)
 }
 
 func UpdateName(proc Process, a NameVisitor) error {
@@ -124,33 +124,33 @@ func UpdateName(proc Process, a NameVisitor) error {
 		case *Par:
 			procs = append(procs, p.Procs...)
 		case *Recv:
-			if n, ok := p.Chan.(nameSetter); ok {
-				n.setName(a.visit(p.Chan))
+			if n, ok := p.Chan.(NameSetter); ok {
+				n.SetName(a.visit(p.Chan))
 			} else {
 				return ImmutableNameError{Name: p.Chan}
 			}
 			for i := range p.Vars {
-				if n, ok := p.Vars[i].(nameSetter); ok {
-					n.setName(a.visit(p.Vars[i]))
+				if n, ok := p.Vars[i].(NameSetter); ok {
+					n.SetName(a.visit(p.Vars[i]))
 				} else {
 					return ImmutableNameError{Name: p.Vars[i]}
 				}
 			}
 			procs = append(procs, p.Cont)
 		case *Send:
-			if n, ok := p.Chan.(nameSetter); ok {
-				n.setName(a.visit(p.Chan))
+			if n, ok := p.Chan.(NameSetter); ok {
+				n.SetName(a.visit(p.Chan))
 			}
 			for i := range p.Vals {
-				if n, ok := p.Vals[i].(nameSetter); ok {
-					n.setName(a.visit(p.Vals[i]))
+				if n, ok := p.Vals[i].(NameSetter); ok {
+					n.SetName(a.visit(p.Vals[i]))
 				} else {
 					return ImmutableNameError{Name: p.Vals[i]}
 				}
 			}
 		case *Restrict:
-			if n, ok := p.Name.(nameSetter); ok {
-				n.setName(a.visit(p.Name))
+			if n, ok := p.Name.(NameSetter); ok {
+				n.SetName(a.visit(p.Name))
 			}
 			procs = append(procs, p.Proc)
 		default:
