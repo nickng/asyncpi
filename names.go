@@ -1,86 +1,19 @@
 package asyncpi
 
 import (
-	"bytes"
 	"fmt"
+	"go.nickng.io/asyncpi/internal/name"
 	"log"
 )
 
-// name is a concrete Name.
-type piName struct {
-	name string
-	s    sorts
-}
-
-// newPiName creates a new concrete name from a string.
-func newPiName(n string) *piName {
-	return &piName{name: n}
-}
-
-// setSort sets the name sort.
-func (n *piName) setSort(s sorts) {
-	n.s = s
-}
-
-// SetName sets the internal name.
-func (n *piName) SetName(name string) {
-	n.name = name
-}
-
-// FreeNames of name is itself (if sort is name).
-func (n *piName) FreeNames() []Name {
-	if n.s == nameSort {
-		return []Name{n}
-	}
-	return []Name{}
-}
-
-// FreeVars of name is itself (if sort is var).
-func (n *piName) FreeVars() []Name {
-	if n.s == varSort {
-		return []Name{n}
-	}
-	return []Name{}
-}
-
-// Ident is the string identifier of a name.
-func (n *piName) Ident() string {
-	return n.name
-}
-
-func (n *piName) String() string {
-	var buf bytes.Buffer
-	if n.s == varSort {
-		buf.WriteString("_")
-	}
-	buf.WriteString(n.name)
-	return buf.String()
-}
-
-// newPiNames is a convenient utility function
+// newNames is a convenient utility function
 // for creating a []Name from given strings.
-func newPiNames(names ...string) []Name {
+func newNames(names ...string) []Name {
 	pn := make([]Name, len(names))
 	for i, n := range names {
-		pn[i] = newPiName(n)
+		pn[i] = name.New(n)
 	}
 	return pn
-}
-
-// hintedName represents a Name extended with type hint.
-type hintedName struct {
-	Name
-	hint string
-}
-
-// newHintedName returns a new Name for the given n and t.
-func newHintedName(name Name, hint string) *hintedName {
-	return &hintedName{name, hint}
-}
-
-// TypeHint returns the type hint attached to given Name.
-func (n *hintedName) TypeHint() string {
-	return n.hint
 }
 
 type TypeHinter interface {

@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 	"testing"
+
+	"go.nickng.io/asyncpi/internal/name"
 )
 
 type TestCase struct {
@@ -26,17 +28,17 @@ func init() {
 			Input: `b().a().0 | b<> | (new x)x(a,b,c).0`,
 			Output: `((recv(b,[]).recv(a,[]).inact
 |send(b,[]))
-|restrict(x,recv(x,[a b c]).inact))`, FreeNames: newPiNames("a", "b"),
+|restrict(x,recv(x,[a b c]).inact))`, FreeNames: newNames("a", "b"),
 		},
 		"Recv": {
 			Input:     `a(b, c,d__).   0 `,
 			Output:    `recv(a,[b c d__]).inact`,
-			FreeNames: newPiNames("a"),
+			FreeNames: newNames("a"),
 		},
 		"Rep": {
 			Input:     `! a().0`,
 			Output:    `repeat(recv(a,[]).inact)`,
-			FreeNames: []Name{newPiName("a")},
+			FreeNames: []Name{name.New("a")},
 		},
 		"Res": {
 			Input:     `(new x)  x().0 `,
@@ -46,23 +48,23 @@ func init() {
 		"Send": {
 			Input:     `a<b, e_, b> `,
 			Output:    `send(a,[b e_ b])`,
-			FreeNames: []Name{newPiName("a"), newPiName("b"), newPiName("e_")},
+			FreeNames: []Name{name.New("a"), name.New("b"), name.New("e_")},
 		},
 	}
 }
 
 // Tests fn(a) is a
 func TestFreeName(t *testing.T) {
-	name := newPiName("a")
-	freeNames := name.FreeNames()
-	if len(freeNames) == 1 && freeNames[0].Ident() != name.Ident() {
-		t.Errorf("FreeName: fn(a) does not match a: `%s` vs `%s`", freeNames, name)
+	n := name.New("a")
+	freeNames := FreeNames(n)
+	if len(freeNames) == 1 && freeNames[0].Ident() != n.Ident() {
+		t.Errorf("FreeName: fn(a) does not match a: `%s` vs `%s`", freeNames, n)
 	}
 }
 
 // Tests fn(a) U fn(b) is a U b
 func TestFreeNames(t *testing.T) {
-	piNames := []Name{newPiName("a"), newPiName("c"), newPiName("b")}
+	piNames := []Name{name.New("a"), name.New("c"), name.New("b")}
 	freeNames := []Name{}
 	for _, name := range piNames {
 		freeNames = append(freeNames, FreeNames(name)...)

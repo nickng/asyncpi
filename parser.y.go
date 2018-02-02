@@ -6,11 +6,13 @@ import __yyfmt__ "fmt"
 //line asyncpi.y:2
 import (
 	"io"
+
+	"go.nickng.io/asyncpi/internal/name"
 )
 
 var proc Process
 
-//line asyncpi.y:11
+//line asyncpi.y:13
 type asyncpiSymType struct {
 	yys    int
 	strval string
@@ -59,7 +61,7 @@ const asyncpiEofCode = 1
 const asyncpiErrCode = 2
 const asyncpiInitialStackSize = 16
 
-//line asyncpi.y:68
+//line asyncpi.y:70
 
 // Parse is the entry point to the asyncpi calculus parser.
 func Parse(r io.Reader) (Process, error) {
@@ -486,132 +488,132 @@ asyncpidefault:
 
 	case 1:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:33
+		//line asyncpi.y:35
 		{
 			proc = asyncpiDollar[1].proc
 		}
 	case 2:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:36
+		//line asyncpi.y:38
 		{
 			asyncpiVAL.proc = asyncpiDollar[1].proc
 		}
 	case 3:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:37
+		//line asyncpi.y:39
 		{
 			asyncpiVAL.proc = NewPar(asyncpiDollar[1].proc, asyncpiDollar[3].proc)
 		}
 	case 4:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:40
+		//line asyncpi.y:42
 		{
 			asyncpiVAL.proc = NewNilProcess()
 		}
 	case 5:
 		asyncpiDollar = asyncpiS[asyncpipt-4 : asyncpipt+1]
-		//line asyncpi.y:41
+		//line asyncpi.y:43
 		{
-			asyncpiVAL.proc = NewSend(newPiName(asyncpiDollar[1].strval))
+			asyncpiVAL.proc = NewSend(name.New(asyncpiDollar[1].strval))
 			asyncpiVAL.proc.(*Send).SetVals(asyncpiDollar[3].names)
 		}
 	case 6:
 		asyncpiDollar = asyncpiS[asyncpipt-6 : asyncpipt+1]
-		//line asyncpi.y:42
+		//line asyncpi.y:44
 		{
-			asyncpiVAL.proc = NewRecv(newPiName(asyncpiDollar[1].strval), asyncpiDollar[6].proc)
+			asyncpiVAL.proc = NewRecv(name.New(asyncpiDollar[1].strval), asyncpiDollar[6].proc)
 			asyncpiVAL.proc.(*Recv).SetVars(asyncpiDollar[3].names)
 		}
 	case 7:
 		asyncpiDollar = asyncpiS[asyncpipt-8 : asyncpipt+1]
-		//line asyncpi.y:43
+		//line asyncpi.y:45
 		{
-			asyncpiVAL.proc = NewRecv(newPiName(asyncpiDollar[1].strval), asyncpiDollar[7].proc)
+			asyncpiVAL.proc = NewRecv(name.New(asyncpiDollar[1].strval), asyncpiDollar[7].proc)
 			asyncpiVAL.proc.(*Recv).SetVars(asyncpiDollar[3].names)
 		}
 	case 8:
 		asyncpiDollar = asyncpiS[asyncpipt-5 : asyncpipt+1]
-		//line asyncpi.y:44
+		//line asyncpi.y:46
 		{
 			asyncpiVAL.proc = NewRestrict(asyncpiDollar[3].name, asyncpiDollar[5].proc)
 		}
 	case 9:
 		asyncpiDollar = asyncpiS[asyncpipt-7 : asyncpipt+1]
-		//line asyncpi.y:45
+		//line asyncpi.y:47
 		{
 			asyncpiVAL.proc = NewRestricts(append([]Name{asyncpiDollar[3].name}, asyncpiDollar[5].names...), asyncpiDollar[7].proc)
 		}
 	case 10:
 		asyncpiDollar = asyncpiS[asyncpipt-2 : asyncpipt+1]
-		//line asyncpi.y:46
+		//line asyncpi.y:48
 		{
 			asyncpiVAL.proc = NewRepeat(asyncpiDollar[2].proc)
 		}
 	case 11:
 		asyncpiDollar = asyncpiS[asyncpipt-4 : asyncpipt+1]
-		//line asyncpi.y:47
+		//line asyncpi.y:49
 		{
 			asyncpiVAL.proc = NewRepeat(asyncpiDollar[3].proc)
 		}
 	case 12:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:50
+		//line asyncpi.y:52
 		{
-			asyncpiVAL.name = newPiName(asyncpiDollar[1].strval)
+			asyncpiVAL.name = name.New(asyncpiDollar[1].strval)
 		}
 	case 13:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:51
+		//line asyncpi.y:53
 		{
-			asyncpiVAL.name = newHintedName(newPiName(asyncpiDollar[1].strval), asyncpiDollar[3].strval)
+			asyncpiVAL.name = name.NewHinted(asyncpiDollar[1].strval, asyncpiDollar[3].strval)
 		}
 	case 14:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:54
+		//line asyncpi.y:56
 		{
 			asyncpiVAL.proc = asyncpiDollar[1].proc
 		}
 	case 15:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:55
+		//line asyncpi.y:57
 		{
 			asyncpiVAL.proc = asyncpiDollar[2].proc
 		}
 	case 16:
 		asyncpiDollar = asyncpiS[asyncpipt-0 : asyncpipt+1]
-		//line asyncpi.y:58
+		//line asyncpi.y:60
 		{
-			asyncpiVAL.names = []Name{}
+			asyncpiVAL.names = nil
 		}
 	case 17:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:59
+		//line asyncpi.y:61
 		{
 			asyncpiVAL.names = []Name{asyncpiDollar[1].name}
 		}
 	case 18:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:60
+		//line asyncpi.y:62
 		{
 			asyncpiVAL.names = append(asyncpiDollar[1].names, asyncpiDollar[3].name)
 		}
 	case 19:
 		asyncpiDollar = asyncpiS[asyncpipt-0 : asyncpipt+1]
-		//line asyncpi.y:63
+		//line asyncpi.y:65
 		{
-			asyncpiVAL.names = []Name{}
+			asyncpiVAL.names = nil
 		}
 	case 20:
 		asyncpiDollar = asyncpiS[asyncpipt-1 : asyncpipt+1]
-		//line asyncpi.y:64
+		//line asyncpi.y:66
 		{
-			asyncpiVAL.names = []Name{newPiName(asyncpiDollar[1].strval)}
+			asyncpiVAL.names = []Name{name.New(asyncpiDollar[1].strval)}
 		}
 	case 21:
 		asyncpiDollar = asyncpiS[asyncpipt-3 : asyncpipt+1]
-		//line asyncpi.y:65
+		//line asyncpi.y:67
 		{
-			asyncpiVAL.names = append(asyncpiDollar[1].names, newPiName(asyncpiDollar[3].strval))
+			asyncpiVAL.names = append(asyncpiDollar[1].names, name.New(asyncpiDollar[3].strval))
 		}
 	}
 	goto asyncpistack /* stack new state and value */

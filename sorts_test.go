@@ -1,9 +1,13 @@
 package asyncpi
 
-import "testing"
+import (
+	"testing"
+
+	"go.nickng.io/asyncpi/internal/name"
+)
 
 func TestDefaultSort(t *testing.T) {
-	n := newPiName("name")
+	n := name.New("name")
 	if expect, got := 1, len(FreeNames(n)); expect != got {
 		t.Errorf("Expecting %s to have %d free names but got %d. fn(%s) = %s",
 			n.Ident(), expect, got, n.Ident(), FreeNames(n))
@@ -32,9 +36,9 @@ func TestNilSort(t *testing.T) {
 }
 
 func TestParSort(t *testing.T) {
-	pLeft, pRight := NewSend(newPiName("a")), NewRecv(newPiName("b"), NewNilProcess())
-	pLeft.Vals = append(pLeft.Vals, newPiName("c"), newPiName("d"), newPiName("e"))
-	pRight.Vars = append(pRight.Vars, newPiName("x"), newPiName("y"), newPiName("z"))
+	pLeft, pRight := NewSend(name.New("a")), NewRecv(name.New("b"), NewNilProcess())
+	pLeft.Vals = append(pLeft.Vals, name.New("c"), name.New("d"), name.New("e"))
+	pRight.Vars = append(pRight.Vars, name.New("x"), name.New("y"), name.New("z"))
 	p := NewPar(pLeft, pRight)
 	if err := InferSorts(p); err != nil {
 		t.Fatalf("cannot infer sort: %v", err)
@@ -52,9 +56,9 @@ func TestParSort(t *testing.T) {
 }
 
 func TestParSortOverlap(t *testing.T) {
-	pLeft, pRight := NewSend(newPiName("a")), NewRecv(newPiName("a"), NewNilProcess())
-	pLeft.Vals = append(pLeft.Vals, newPiName("c"), newPiName("d"), newPiName("e"))
-	pRight.Vars = append(pRight.Vars, newPiName("x"), newPiName("y"), newPiName("z"))
+	pLeft, pRight := NewSend(name.New("a")), NewRecv(name.New("a"), NewNilProcess())
+	pLeft.Vals = append(pLeft.Vals, name.New("c"), name.New("d"), name.New("e"))
+	pRight.Vars = append(pRight.Vars, name.New("x"), name.New("y"), name.New("z"))
 	p := NewPar(pLeft, pRight)
 	if err := InferSorts(p); err != nil {
 		t.Fatalf("cannot infer sort: %v", err)
@@ -72,7 +76,7 @@ func TestParSortOverlap(t *testing.T) {
 }
 
 func TestRestrictSort(t *testing.T) {
-	p := NewRestrict(newPiName("n"), NewNilProcess())
+	p := NewRestrict(name.New("n"), NewNilProcess())
 	if err := InferSorts(p); err != nil {
 		t.Fatalf("cannot infer sort: %v", err)
 	}
@@ -106,8 +110,8 @@ func TestRepeatSort(t *testing.T) {
 }
 
 func TestSendSort(t *testing.T) {
-	p := NewSend(newPiName("u"))
-	p.Vals = append(p.Vals, newPiName("v"))
+	p := NewSend(name.New("u"))
+	p.Vals = append(p.Vals, name.New("v"))
 	if err := InferSorts(p); err != nil {
 		t.Fatalf("cannot infer sort: %v", err)
 	}
@@ -132,8 +136,8 @@ func TestSendSort(t *testing.T) {
 }
 
 func TestRecvSort(t *testing.T) {
-	p := NewRecv(newPiName("u"), NewNilProcess())
-	p.Vars = append(p.Vars, newPiName("x"))
+	p := NewRecv(name.New("u"), NewNilProcess())
+	p.Vars = append(p.Vars, name.New("x"))
 	if err := InferSorts(p); err != nil {
 		t.Fatalf("cannot infer sort: %v", err)
 	}
@@ -154,11 +158,11 @@ func TestRecvSort(t *testing.T) {
 }
 
 func TestNameVarSort(t *testing.T) {
-	a := NameWithSort(newPiName("a"), nameSort)
-	b := NameWithSort(newPiName("b"), nameSort)
-	x := NameWithSort(newPiName("x"), nameSort)
-	y := NameWithSort(newPiName("y"), nameSort)
-	z := NameWithSort(newPiName("z"), nameSort)
+	a := NameWithSort(name.New("a"), nameSort)
+	b := NameWithSort(name.New("b"), nameSort)
+	x := NameWithSort(name.New("x"), nameSort)
+	y := NameWithSort(name.New("y"), nameSort)
+	z := NameWithSort(name.New("z"), nameSort)
 	p := NewRecv(a, NewNilProcess())
 	p.Vars = append(p.Vars, b, x, y, z)
 	if err := UpdateName(p, new(NameVarSorter)); err != nil {
