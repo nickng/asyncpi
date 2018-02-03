@@ -140,27 +140,29 @@ func TestRecvSort(t *testing.T) {
 }
 
 func TestNameVarSort(t *testing.T) {
-	a := newPiName("a")
-	b := newPiName("b")
-	x := newPiName("x")
-	y := newPiName("y")
-	z := newPiName("z")
+	a := NameWithSort(newPiName("a"), nameSort)
+	b := NameWithSort(newPiName("b"), nameSort)
+	x := NameWithSort(newPiName("x"), nameSort)
+	y := NameWithSort(newPiName("y"), nameSort)
+	z := NameWithSort(newPiName("z"), nameSort)
 	p := NewRecv(a, NewNilProcess())
 	p.Vars = append(p.Vars, b, x, y, z)
-	UpdateName(p, new(NameVarSorter))
-	if expect, got := nameSort, a.s; expect != got {
+	if err := UpdateName(p, new(NameVarSorter)); err != nil {
+		t.Fatal(err)
+	}
+	if expect, got := nameSort, a.Sort(); expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", a.Ident(), expect, got)
 	}
-	if expect, got := nameSort, b.s; expect != got {
+	if expect, got := nameSort, b.Sort(); expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", b.Ident(), expect, got)
 	}
-	if expect, got := varSort, x.s; expect != got {
+	if expect, got := varSort, x.Sort(); expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", x.Ident(), expect, got)
 	}
-	if expect, got := varSort, y.s; expect != got {
+	if expect, got := varSort, y.Sort(); expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", y.Ident(), expect, got)
 	}
-	if expect, got := varSort, z.s; expect != got {
+	if expect, got := varSort, z.Sort(); expect != got {
 		t.Errorf("Expecting %s sort to be %d but got %d.", z.Ident(), expect, got)
 	}
 }

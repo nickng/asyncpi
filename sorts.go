@@ -16,8 +16,43 @@ const (
 // Sorts.
 // Names are split to name and var sort.
 
-type sortSetter interface {
-	setSort(s sorts)
+// SortedName represents a Name with sort.
+type SortedName struct {
+	Name
+	s sorts
+}
+
+// NameWithSort returns a new SortedName based on the given Name n.
+func NameWithSort(n Name, s sorts) *SortedName {
+	return &SortedName{n, s}
+}
+
+func (n *SortedName) FreeNames() []Name {
+	if n.s == nameSort {
+		return []Name{n}
+	}
+	return nil
+}
+
+func (n *SortedName) FreeVars() []Name {
+	if n.s == varSort {
+		return []Name{n}
+	}
+	return nil
+}
+
+// Sort returns the sort of the Name n.
+func (n *SortedName) Sort() sorts {
+	return n.s
+}
+
+// setSort sets the sort of the given sorted Name n.
+func (n *SortedName) SetSort(s sorts) {
+	n.s = s
+}
+
+type SortSetter interface {
+	SetSort(s sorts)
 }
 
 // IdentifySort puts names in a Process into their respective sort {name,var}.
@@ -36,8 +71,8 @@ func IdentifySorts(proc Process) {
 		case *Recv:
 			for _, v := range p.Vars {
 				nameVar[v] = true
-				if s, ok := v.(sortSetter); ok {
-					s.setSort(varSort)
+				if s, ok := v.(SortSetter); ok {
+					s.SetSort(varSort)
 				}
 			}
 			procs = append(procs, p.Cont)
@@ -45,8 +80,8 @@ func IdentifySorts(proc Process) {
 			for _, v := range p.Vals {
 				if _, ok := nameVar[v]; !ok {
 					nameVar[v] = true
-					if s, ok := v.(sortSetter); ok {
-						s.setSort(varSort)
+					if s, ok := v.(SortSetter); ok {
+						s.SetSort(varSort)
 					}
 				}
 			}
@@ -71,22 +106,22 @@ func ResetSorts(proc Process) {
 		case *Par:
 			procs = append(procs, p.Procs...)
 		case *Recv:
-			if s, ok := p.Chan.(sortSetter); ok {
-				s.setSort(nameSort)
+			if s, ok := p.Chan.(SortSetter); ok {
+				s.SetSort(nameSort)
 			}
 			for _, v := range p.Vars {
-				if s, ok := v.(sortSetter); ok {
-					s.setSort(nameSort)
+				if s, ok := v.(SortSetter); ok {
+					s.SetSort(nameSort)
 				}
 			}
 			procs = append(procs, p.Cont)
 		case *Send:
-			if s, ok := p.Chan.(sortSetter); ok {
-				s.setSort(nameSort)
+			if s, ok := p.Chan.(SortSetter); ok {
+				s.SetSort(nameSort)
 			}
 			for _, v := range p.Vals {
-				if s, ok := v.(sortSetter); ok {
-					s.setSort(nameSort)
+				if s, ok := v.(SortSetter); ok {
+					s.SetSort(nameSort)
 				}
 			}
 		case *Restrict:
@@ -106,8 +141,8 @@ type NameVarSorter struct{}
 func (s *NameVarSorter) visit(n Name) string {
 	r, _ := utf8.DecodeRuneInString(n.Ident())
 	if strings.ContainsRune("nopqrstuvwxyz", r) {
-		if s, ok := n.(sortSetter); ok {
-			s.setSort(varSort)
+		if s, ok := n.(SortSetter); ok {
+			s.SetSort(varSort)
 		}
 	}
 	return n.Ident()
