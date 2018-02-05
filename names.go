@@ -1,9 +1,7 @@
 package asyncpi
 
 import (
-	"fmt"
 	"go.nickng.io/asyncpi/internal/name"
-	"log"
 )
 
 // newNames is a convenient utility function
@@ -20,77 +18,8 @@ type TypeHinter interface {
 	TypeHint() string
 }
 
-type NameVisitor interface {
-	visit(n Name) string
-}
-
-// Uniquefier is NameVisitor to test binding.
-type Uniquefier struct {
-	names map[Name]string
-}
-
-func (u *Uniquefier) visit(n Name) string {
-	if u.names == nil {
-		u.names = make(map[Name]string)
-	}
-	if un, ok := u.names[n]; ok {
-		return un
-	}
-	s := fmt.Sprintf("%s_%d", n.Ident(), len(u.names))
-	u.names[n] = s
-	return s
-}
-
-type NameSetter interface {
+type nameSetter interface {
 	SetName(string)
-}
-
-func UpdateName(proc Process, a NameVisitor) error {
-	procs := []Process{proc}
-	for len(procs) > 0 {
-		p := procs[0]
-		procs = procs[1:]
-		switch p := p.(type) {
-		case *NilProcess:
-		case *Repeat:
-			procs = append(procs, p.Proc)
-		case *Par:
-			procs = append(procs, p.Procs...)
-		case *Recv:
-			if n, ok := p.Chan.(NameSetter); ok {
-				n.SetName(a.visit(p.Chan))
-			} else {
-				return ImmutableNameError{Name: p.Chan}
-			}
-			for i := range p.Vars {
-				if n, ok := p.Vars[i].(NameSetter); ok {
-					n.SetName(a.visit(p.Vars[i]))
-				} else {
-					return ImmutableNameError{Name: p.Vars[i]}
-				}
-			}
-			procs = append(procs, p.Cont)
-		case *Send:
-			if n, ok := p.Chan.(NameSetter); ok {
-				n.SetName(a.visit(p.Chan))
-			}
-			for i := range p.Vals {
-				if n, ok := p.Vals[i].(NameSetter); ok {
-					n.SetName(a.visit(p.Vals[i]))
-				} else {
-					return ImmutableNameError{Name: p.Vals[i]}
-				}
-			}
-		case *Restrict:
-			if n, ok := p.Name.(NameSetter); ok {
-				n.SetName(a.visit(p.Name))
-			}
-			procs = append(procs, p.Proc)
-		default:
-			log.Fatal(UnknownProcessTypeError{Caller: "UpdateName", Proc: p})
-		}
-	}
-	return nil
 }
 
 // freeNameser is an interface which Name should
