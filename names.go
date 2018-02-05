@@ -14,14 +14,6 @@ func newNames(names ...string) []Name {
 	return pn
 }
 
-type TypeHinter interface {
-	TypeHint() string
-}
-
-type nameSetter interface {
-	SetName(string)
-}
-
 // freeNameser is an interface which Name should
 // provide to have custom FreeNames implementation.
 type freeNameser interface {

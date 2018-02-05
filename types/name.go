@@ -16,6 +16,7 @@ package types
 
 import (
 	"go.nickng.io/asyncpi"
+	"go.nickng.io/asyncpi/internal/name"
 )
 
 // TypedName is a typed wrapper for Name.
@@ -65,7 +66,7 @@ func AttachType(n asyncpi.Name) TypedName {
 		return tn
 	}
 	// Use type hint
-	if th, hasHint := n.(asyncpi.TypeHinter); hasHint {
+	if th, hasHint := n.(name.TypeHinter); hasHint {
 		tn := newTypedName(n)
 		tn.setType(NewBase(th.TypeHint()))
 		return tn

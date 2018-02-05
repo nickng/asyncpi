@@ -20,10 +20,6 @@ import (
 	"go.nickng.io/asyncpi"
 )
 
-type setter interface {
-	SetName(string)
-}
-
 func MakeNamesUnique(p asyncpi.Process) error {
 	if err := Walk(new(uniqueNamer), p); err != nil {
 		return err
@@ -45,7 +41,7 @@ func (u *uniqueNamer) VisitName(n asyncpi.Name) error {
 	}
 	s := fmt.Sprintf("%s_%d", n.Ident(), len(u.names))
 	u.names[n] = s
-	if uniq, canSetName := n.(setter); canSetName {
+	if uniq, canSetName := n.(Setter); canSetName {
 		uniq.SetName(s)
 		return nil
 	}

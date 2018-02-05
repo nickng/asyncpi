@@ -2,6 +2,8 @@ package asyncpi
 
 import (
 	"fmt"
+
+	"go.nickng.io/asyncpi/internal/name"
 )
 
 // Subst is the substitution of variables xs by names vs in Process p.
@@ -22,13 +24,13 @@ func Subst(p Process, vs, xs []Name) error {
 		case *Recv:
 			for i, x := range xs {
 				if IsSameName(p.Chan, x) {
-					if ch, canSetName := p.Chan.(nameSetter); canSetName {
+					if ch, canSetName := p.Chan.(name.Setter); canSetName {
 						ch.SetName(vs[i].Ident())
 					}
 				}
 				for _, rv := range p.Vars {
 					if IsSameName(rv, x) {
-						if ch, canSetName := rv.(nameSetter); canSetName {
+						if ch, canSetName := rv.(name.Setter); canSetName {
 							ch.SetName(vs[i].Ident())
 						}
 					}
@@ -42,7 +44,7 @@ func Subst(p Process, vs, xs []Name) error {
 		case *Send:
 			for i, x := range xs {
 				if IsSameName(p.Chan, x) {
-					if ch, canSetName := p.Chan.(nameSetter); canSetName {
+					if ch, canSetName := p.Chan.(name.Setter); canSetName {
 						ch.SetName(vs[i].Ident())
 					}
 				}
