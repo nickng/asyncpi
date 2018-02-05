@@ -59,6 +59,12 @@ func Subst(p Process, vs, xs []Name) error {
 	return nil
 }
 
+// Reduce1 performs a single step of reduction for Process p.
+func Reduce1(p Process) (changed bool, err error) {
+	changed, err = reduceOnce(p)
+	return changed, errors.Wrap(err, "cannot reduce process")
+}
+
 // reduceOnce performs a single step of reduction.
 //
 // This reduction combines multiple congruence relations
