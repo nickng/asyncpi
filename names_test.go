@@ -12,8 +12,10 @@ func TestUpdateName(t *testing.T) {
 		t.Fatal(err)
 	}
 	bproc := Bind(proc)
-	IdentifySorts(bproc)
-	UpdateName(bproc, new(Uniquefier))
+	InferSorts(bproc)
+	if err := UpdateName(bproc, new(Uniquefier)); err != nil {
+		t.Fatalf("cannot update name: %v", err)
+	}
 	if expect, got := 1, len(bproc.FreeNames()); expect != got {
 		t.Fatalf("Expecting %d unique free names, but got %d: %s", expect, got, bproc.Calculi())
 	}
@@ -29,8 +31,12 @@ func TestUpdateNamePar(t *testing.T) {
 		t.Fatal(err)
 	}
 	bproc := Bind(proc)
-	IdentifySorts(bproc)
-	UpdateName(bproc, new(Uniquefier))
+	if err := InferSorts(bproc); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
+	if err := UpdateName(bproc, new(Uniquefier)); err != nil {
+		t.Fatalf("cannot update name: %v", err)
+	}
 	if expect, got := 3, len(bproc.FreeNames()); expect != got {
 		t.Fatalf("Expecting %d unique free names, but got %d: %s", expect, got, bproc.Calculi())
 	}

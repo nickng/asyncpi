@@ -16,7 +16,9 @@ func TestDefaultSort(t *testing.T) {
 
 func TestNilSort(t *testing.T) {
 	p := NewNilProcess()
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 0, len(p.FreeNames()); expect != got {
@@ -34,7 +36,9 @@ func TestParSort(t *testing.T) {
 	pLeft.Vals = append(pLeft.Vals, newPiName("c"), newPiName("d"), newPiName("e"))
 	pRight.Vars = append(pRight.Vars, newPiName("x"), newPiName("y"), newPiName("z"))
 	p := NewPar(pLeft, pRight)
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 2, len(p.FreeNames()); expect != got {
@@ -52,7 +56,9 @@ func TestParSortOverlap(t *testing.T) {
 	pLeft.Vals = append(pLeft.Vals, newPiName("c"), newPiName("d"), newPiName("e"))
 	pRight.Vars = append(pRight.Vars, newPiName("x"), newPiName("y"), newPiName("z"))
 	p := NewPar(pLeft, pRight)
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 1, len(p.FreeNames()); expect != got {
@@ -67,7 +73,9 @@ func TestParSortOverlap(t *testing.T) {
 
 func TestRestrictSort(t *testing.T) {
 	p := NewRestrict(newPiName("n"), NewNilProcess())
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 0, len(p.FreeNames()); expect != got {
@@ -82,7 +90,9 @@ func TestRestrictSort(t *testing.T) {
 
 func TestRepeatSort(t *testing.T) {
 	p := NewRepeat(NewNilProcess())
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 0, len(p.FreeNames()); expect != got {
@@ -98,7 +108,9 @@ func TestRepeatSort(t *testing.T) {
 func TestSendSort(t *testing.T) {
 	p := NewSend(newPiName("u"))
 	p.Vals = append(p.Vals, newPiName("v"))
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 1, len(p.FreeNames()); expect != got {
@@ -122,7 +134,9 @@ func TestSendSort(t *testing.T) {
 func TestRecvSort(t *testing.T) {
 	p := NewRecv(newPiName("u"), NewNilProcess())
 	p.Vars = append(p.Vars, newPiName("x"))
-	IdentifySorts(p)
+	if err := InferSorts(p); err != nil {
+		t.Fatalf("cannot infer sort: %v", err)
+	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
 	if expect, got := 1, len(p.FreeNames()); expect != got {

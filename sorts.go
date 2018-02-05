@@ -55,8 +55,8 @@ type SortSetter interface {
 	SetSort(s sorts)
 }
 
-// IdentifySort puts names in a Process into their respective sort {name,var}.
-func IdentifySorts(proc Process) {
+// InferSorts puts names in a Process into their respective sort {name,var}.
+func InferSorts(proc Process) error {
 	nameVar := make(map[Name]bool)
 	procs := []Process{proc}
 	for len(procs) > 0 {
@@ -73,6 +73,8 @@ func IdentifySorts(proc Process) {
 				nameVar[v] = true
 				if s, ok := v.(SortSetter); ok {
 					s.SetSort(varSort)
+				} else {
+					return &ImmutableNameError{Name: v}
 				}
 			}
 			procs = append(procs, p.Cont)
@@ -82,6 +84,8 @@ func IdentifySorts(proc Process) {
 					nameVar[v] = true
 					if s, ok := v.(SortSetter); ok {
 						s.SetSort(varSort)
+					} else {
+						return &ImmutableNameError{Name: v}
 					}
 				}
 			}
@@ -89,9 +93,10 @@ func IdentifySorts(proc Process) {
 			nameVar[p.Name] = false // new name = not var
 			procs = append(procs, p.Proc)
 		default:
-			log.Fatal(UnknownProcessTypeError{Caller: "IdentifySorts", Proc: p})
+			return UnknownProcessTypeError{Caller: "InferSorts", Proc: p}
 		}
 	}
+	return nil
 }
 
 func ResetSorts(proc Process) {
