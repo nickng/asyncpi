@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"go.nickng.io/asyncpi"
+	"go.nickng.io/asyncpi/internal/errors"
 )
 
 // Tests type inference only.
@@ -381,8 +382,12 @@ func TestInferUnifyNested(t *testing.T) {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
 			atype, resa.Name.(TypedName).Type())
 	}
-	Infer(proc)
-	Unify(proc)
+	if err := Infer(proc); err != nil {
+		t.Fatal(err)
+	}
+	if err := Unify(proc); err != nil {
+		t.Fatal(err)
+	}
 	inferredResa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", nested)
@@ -421,10 +426,12 @@ func TestInferUnifyNamePassing(t *testing.T) {
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", namePassing)
 	}
+	if err := Infer(proc); err != nil {
 		t.Fatal(err)
 	}
-	Infer(proc)
-	Unify(proc)
+	if err := Unify(proc); err != nil {
+		t.Fatal(err)
+	}
 	inferredResa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", namePassing)
@@ -467,8 +474,12 @@ func TestInferNested(t *testing.T) {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
 			atype, resa.Name.(TypedName).Type())
 	}
-	Infer(proc)
-	Unify(proc)
+	if err := Infer(proc); err != nil {
+		t.Fatal(err)
+	}
+	if err := Unify(proc); err != nil {
+		t.Fatal(err)
+	}
 	inferredResa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", nested)
@@ -497,10 +508,14 @@ func TestMismatchCompType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Infer(proc)
+	if err := Infer(proc); err != nil {
+		t.Fatal(err)
+	}
 	err = Unify(proc)
-	if _, ok := err.(*TypeArityError); !ok {
-		t.Fatalf("Unify: Expecting type error (mismatched args in a) but got %v", err)
+	if err, ok := err.(errors.Causer); ok {
+		if _, ok := err.Cause().(*TypeArityError); !ok {
+			t.Fatalf("Unify: Expecting type error (mismatched args in a) but got %v", err)
+		}
 	}
 }
 
@@ -511,7 +526,9 @@ func TestMultipleSender(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Infer(proc)
+	if err := Infer(proc); err != nil {
+		t.Fatal(err)
+	}
 	if err := Unify(proc); err != nil {
 		t.Fatal(err)
 	}

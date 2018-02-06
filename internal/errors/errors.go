@@ -58,3 +58,8 @@ func Wrap(err error, msg string) error {
 		msg:   msg,
 	}
 }
+
+// Causer returns the cause of the error.
+type Causer interface {
+	Cause() error
+}

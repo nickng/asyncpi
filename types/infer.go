@@ -159,6 +159,10 @@ func processInferType(p asyncpi.Process) error {
 	return nil
 }
 
+func errUnify(err error) error {
+	return errors.Wrap(err, "cannot unify types")
+}
+
 // Unify combines the constraints of sending and receiving channels
 // with best effort.
 //
@@ -177,7 +181,7 @@ func Unify(p asyncpi.Process) error {
 	case *asyncpi.Recv:
 		ch, isTyped := p.Chan.(TypedName)
 		if !isTyped {
-			return InferUntypedError{Name: p.Chan.Ident()}
+			return errUnify(InferUntypedError{Name: p.Chan.Ident()})
 		}
 		// chType is either
 		// - a compType with refType fields (including struct{})
@@ -187,7 +191,7 @@ func Unify(p asyncpi.Process) error {
 		for _, v := range p.Vars {
 			tv, isTyped := v.(TypedName)
 			if !isTyped {
-				return InferUntypedError{Name: v.Ident()}
+				return errUnify(InferUntypedError{Name: v.Ident()})
 			}
 			tns = append(tns, tv)
 		}
@@ -209,27 +213,27 @@ func Unify(p asyncpi.Process) error {
 				} else if IsEqual(varType, tns[0].Type()) {
 					// Type is both set but equal
 				} else {
-					return &TypeError{
+					return errUnify(&TypeError{
 						T:   varType,
 						U:   tns[0].Type(),
 						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", p.Chan.Ident()),
-					}
+					})
 				}
 			}
 		default:
 			compT, isComp := varType.(*Composite)
 			if !isComp {
-				return &TypeArityError{
+				return errUnify(&TypeArityError{
 					Got:      1,
 					Expected: len(p.Vars),
 					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Ident()),
-				}
+				})
 			} else if len(tns) != len(compT.Elems()) {
-				return &TypeArityError{
+				return errUnify(&TypeArityError{
 					Got:      len(compT.Elems()),
 					Expected: len(p.Vars),
 					Msg:      fmt.Sprintf("Types from channel %s and vars have different arity", p.Chan.Ident()),
-				}
+				})
 			}
 			for i := range tns {
 				if _, ok := tns[i].Type().(*anyType); ok {
@@ -239,11 +243,11 @@ func Unify(p asyncpi.Process) error {
 				} else if IsEqual(compT.elems[i], tns[i].Type()) {
 					// Type is both set but equal
 				} else {
-					return &TypeError{
+					return errUnify(&TypeError{
 						T:   varType,
 						U:   tns[i].Type(),
 						Msg: fmt.Sprintf("Types inferred from channel %s are in conflict", p.Chan.Ident()),
-					}
+					})
 				}
 			}
 		}
@@ -252,6 +256,8 @@ func Unify(p asyncpi.Process) error {
 		return Unify(p.Proc)
 	case *asyncpi.Restrict:
 		return Unify(p.Proc)
+	default:
+		return errUnify(asyncpi.UnknownProcessError{Proc: p})
 	}
 	return nil
 }
