@@ -60,6 +60,6 @@ func ProcType(p asyncpi.Process) (string, error) {
 		}
 		return fmt.Sprintf("(ν%s:%s) %s", p.Name.Ident(), p.Name.(TypedName).Type(), proc), nil
 	default:
-		return "", asyncpi.InvalidProcTypeError{Caller: "types.ProcTypes", Proc: p}
+		return "", asyncpi.UnknownProcessError{Proc: p}
 	}
 }

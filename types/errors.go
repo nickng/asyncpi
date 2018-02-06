@@ -14,7 +14,9 @@
 
 package types
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // InferUnTypedError is the type of error when type inference is
 // applied on an untyped Process.

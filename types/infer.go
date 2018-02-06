@@ -18,18 +18,25 @@ import (
 	"fmt"
 
 	"go.nickng.io/asyncpi"
+	"go.nickng.io/asyncpi/internal/errors"
 )
+
+func errInferType(err error) error {
+	return errors.Wrap(err, "cannot infer type")
+}
 
 // BUG(nickng) Inference may fail if type of a name is recursively defined
 // (e.g. a<a> → typed chan of type(a)), printing the type will cause a stack
 // overflow.
 
-func processAttachType(p asyncpi.Process) {
+func processAttachType(p asyncpi.Process) error {
 	switch p := p.(type) {
 	case *asyncpi.NilProcess:
 	case *asyncpi.Par:
 		for _, p := range p.Procs {
-			processAttachType(p)
+			if err := processAttachType(p); err != nil {
+				return err
+			}
 		}
 	case *asyncpi.Recv:
 		p.Chan = AttachType(p.Chan)
@@ -38,11 +45,17 @@ func processAttachType(p asyncpi.Process) {
 			tvs = append(tvs, AttachType(v))
 		}
 		p.SetVars(tvs)
-		processAttachType(p.Cont)
+		if err := processAttachType(p.Cont); err != nil {
+			return err
+		}
 	case *asyncpi.Repeat:
-		processAttachType(p.Proc)
+		if err := processAttachType(p.Proc); err != nil {
+			return err
+		}
 	case *asyncpi.Restrict:
-		processAttachType(p.Proc)
+		if err := processAttachType(p.Proc); err != nil {
+			return err
+		}
 		p.Name = AttachType(p.Name)
 	case *asyncpi.Send:
 		p.Chan = AttachType(p.Chan)
@@ -51,15 +64,23 @@ func processAttachType(p asyncpi.Process) {
 			tvs = append(tvs, AttachType(v))
 		}
 		p.SetVals(tvs)
+	default:
+		return asyncpi.UnknownProcessError{Proc: p}
 	}
+	return nil
 }
 
 func Infer(p asyncpi.Process) error {
-	processAttachType(p)
-	if err := asyncpi.Bind(&p); err != nil {
-		return err
+	if err := processAttachType(p); err != nil {
+		return errInferType(errors.Wrap(err, "cannot attach type to process"))
 	}
-	return processInferType(p)
+	if err := asyncpi.Bind(&p); err != nil {
+		return errInferType(err)
+	}
+	if err := processInferType(p); err != nil {
+		return errInferType(err)
+	}
+	return nil
 }
 
 // processInferType performs inline type inference for channels.
@@ -133,7 +154,7 @@ func processInferType(p asyncpi.Process) error {
 			p.Chan.(TypedName).setType(NewChan(NewComposite(tvs...)))
 		}
 	default:
-		return asyncpi.InvalidProcTypeError{Caller: "types.Infer", Proc: p}
+		return asyncpi.UnknownProcessError{Proc: p}
 	}
 	return nil
 }

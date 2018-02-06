@@ -1,10 +1,13 @@
 package asyncpi
 
 import (
-	"fmt"
-
+	"go.nickng.io/asyncpi/internal/errors"
 	"go.nickng.io/asyncpi/internal/name"
 )
+
+func errSubst(err error) error {
+	return errors.Wrap(err, "substitution failed")
+}
 
 // Subst is the substitution of variables xs by names vs in Process p.
 //
@@ -12,7 +15,7 @@ import (
 // such that xs[i] is substituted by vs[i] in 0 <= i < len(xs).
 func Subst(p Process, vs, xs []Name) error {
 	if len(xs) != len(vs) {
-		return ErrInvalid
+		return errSubst(ErrInvalid)
 	}
 	procs := []Process{p}
 	for len(procs) > 0 {
@@ -50,7 +53,7 @@ func Subst(p Process, vs, xs []Name) error {
 				}
 			}
 		default:
-			return InvalidProcTypeError{Caller: "Subst", Proc: p}
+			return errSubst(UnknownProcessError{Proc: p})
 		}
 	}
 	return nil
@@ -103,7 +106,7 @@ func reduceOnce(p Process) (changed bool, err error) {
 				recv := (*r).(*Recv)
 				send := (*s).(*Send)
 				if err := Subst(recv.Cont, send.Vals, recv.Vars); err != nil {
-					return false, fmt.Errorf("substitution error: %v", err)
+					return false, err
 				}
 				*s, *r = NewNilProcess(), recv.Cont
 				return true, nil
@@ -119,8 +122,12 @@ func reduceOnce(p Process) (changed bool, err error) {
 	case *Send:
 		return false, nil
 	default:
-		return false, InvalidProcTypeError{Caller: "reduceOnce", Proc: p}
+		return false, UnknownProcessError{Proc: p}
 	}
+}
+
+func errSimplify(err error) error {
+	return errors.Wrap(err, "cannot simplify process")
 }
 
 // SimplifyBySC simplifies a Process p by structural congruence rules.
@@ -131,15 +138,15 @@ func reduceOnce(p Process) (changed bool, err error) {
 func SimplifyBySC(p Process) (Process, error) {
 	unwanted, err := findUnusedRestrict(p)
 	if err != nil {
-		return nil, err
+		return nil, errSimplify(errors.Wrap(err, "cannot find unused restricts"))
 	}
 	p, err = filterRestrict(p, unwanted)
 	if err != nil {
-		return nil, err
+		return nil, errSimplify(errors.Wrap(err, "cannot filter unused restricts"))
 	}
 	p, err = filterNilProcess(p)
 	if err != nil {
-		return nil, err
+		return nil, errSimplify(errors.Wrap(err, "cannot filter nil processes"))
 	}
 	return p, nil
 }
@@ -195,7 +202,7 @@ func findUnusedRestrict(p Process) (unused []Name, err error) {
 				}
 			}
 		default:
-			return nil, InvalidProcTypeError{Caller: "findUnusedRestrict", Proc: p}
+			return nil, UnknownProcessError{Proc: p}
 		}
 	}
 	for _, rc := range resUses {
@@ -259,7 +266,7 @@ func filterRestrict(p Process, unwanted []Name) (Process, error) {
 	case *Send:
 		return p, nil
 	default:
-		return nil, InvalidProcTypeError{Caller: "filterRestrict", Proc: p}
+		return nil, UnknownProcessError{Proc: p}
 	}
 }
 
@@ -326,6 +333,6 @@ func filterNilProcess(p Process) (Process, error) {
 	case *Send:
 		return p, nil
 	default:
-		return nil, InvalidProcTypeError{Caller: "filterNilProcess", Proc: p}
+		return nil, UnknownProcessError{Proc: p}
 	}
 }

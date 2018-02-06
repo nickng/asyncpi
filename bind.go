@@ -1,5 +1,7 @@
 package asyncpi
 
+import "go.nickng.io/asyncpi/internal/errors"
+
 // Binding.
 // This file contains functions for name binding.
 
@@ -8,7 +10,7 @@ func Bind(p *Process) error {
 	var err error
 	*p, err = bind(*p, []Name{})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "bind failed")
 	}
 	return nil
 }
@@ -81,6 +83,6 @@ func bind(p Process, boundNames []Name) (_ Process, err error) {
 		p.Proc, err = bind(p.Proc, names)
 		return p, err
 	default:
-		return nil, InvalidProcTypeError{Caller: "bind", Proc: p}
+		return nil, UnknownProcessError{Proc: p}
 	}
 }

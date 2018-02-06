@@ -22,17 +22,21 @@ type ImmutableNameError struct {
 }
 
 func (e ImmutableNameError) Error() string {
-	return fmt.Sprintf("cannot modify name %v: immutable implementation of Name", e.Name.Ident())
-}
-
-// InvalidProcTypeError is the type of error for an unknown process type.
-type InvalidProcTypeError struct {
-	Caller string
-	Proc   Process
-}
-
-func (e InvalidProcTypeError) Error() string {
-	return fmt.Sprintf("%s: Unknown process type: %T", e.Caller, e.Proc)
+	return fmt.Sprintf("cannot set Name: %s is an immutable Name implementation", e.Name.Ident())
 }
 
 var ErrInvalid = errors.New("invalid argument")
+
+// UnknownProcessError is the type of error
+// when a type switch encounters an unknown
+// Process implementation.
+//
+// The Process implementation may be valid but
+// the caller does not anticipate or handle it.
+type UnknownProcessError struct {
+	Proc Process
+}
+
+func (e UnknownProcessError) Error() string {
+	return fmt.Sprintf("unknown process: %s (type: %T)", e.Proc, e.Proc)
+}

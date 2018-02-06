@@ -19,13 +19,18 @@ import (
 	"unicode/utf8"
 
 	"go.nickng.io/asyncpi"
+	"go.nickng.io/asyncpi/internal/errors"
 	"go.nickng.io/asyncpi/name"
 )
+
+func errInferSort(err error) error {
+	return errors.Wrap(err, "cannot infer sorts")
+}
 
 // InferSortsByUsage puts names in a Process into their respective sort {name,var}.
 func InferSortsByUsage(p asyncpi.Process) error {
 	if err := upgrade(p); err != nil {
-		return err
+		return errInferSort(errors.Wrap(err, "cannot upgrade process Names to SortedNames"))
 	}
 	nameVar := make(map[asyncpi.Name]bool)
 	procs := []asyncpi.Process{p}
@@ -44,7 +49,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 				if s, canSetSort := p.Vars[i].(setter); canSetSort {
 					s.SetSort(VarSort)
 				} else {
-					return asyncpi.ImmutableNameError{Name: p.Vars[i]}
+					return errInferSort(asyncpi.ImmutableNameError{Name: p.Vars[i]})
 				}
 			}
 			procs = append(procs, p.Cont)
@@ -55,7 +60,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 					if s, canSetSort := p.Vals[i].(setter); canSetSort {
 						s.SetSort(VarSort)
 					} else {
-						return asyncpi.ImmutableNameError{Name: p.Vals[i]}
+						return errInferSort(asyncpi.ImmutableNameError{Name: p.Vals[i]})
 					}
 				}
 			}
@@ -63,7 +68,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 			nameVar[p.Name] = false // new name = not var
 			procs = append(procs, p.Proc)
 		default:
-			return asyncpi.InvalidProcTypeError{Caller: "sortedname.InferSortsByUsage", Proc: p}
+			return errInferSort(asyncpi.UnknownProcessError{Proc: p})
 		}
 	}
 	return nil
@@ -71,7 +76,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 
 func InferSortsByPrefix(p asyncpi.Process) error {
 	if err := name.Walk(byPrefix{}, p); err != nil {
-		return err
+		return errInferSort(err)
 	}
 	return nil
 }
