@@ -19,9 +19,6 @@ func TestBasicInferOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := asyncpi.Bind(&proc); err != nil {
-		t.Fatal(err)
-	}
 	Infer(proc)
 
 	resa, ok := proc.(*asyncpi.Restrict)
@@ -87,9 +84,6 @@ func TestBasicInferUnify(t *testing.T) {
 	ztype := "T"      // type(c).
 	proc, err := asyncpi.Parse(strings.NewReader(input))
 	if err != nil {
-		t.Fatal(err)
-	}
-	if err := asyncpi.Bind(&proc); err != nil {
 		t.Fatal(err)
 	}
 	Infer(proc)
@@ -162,9 +156,6 @@ func TestWrongHintInferOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := asyncpi.Bind(&proc); err != nil {
-		t.Fatal(err)
-	}
 	Infer(proc)
 
 	resa, ok := proc.(*asyncpi.Restrict)
@@ -229,9 +220,6 @@ func TestWrongHintInferUnify(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := asyncpi.Bind(&proc); err != nil {
-		t.Fatal(err)
-	}
 	Infer(proc)
 	Unify(proc)
 
@@ -290,9 +278,6 @@ func TestHigherOrderInferOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := asyncpi.Bind(&proc); err != nil {
-		t.Fatal(err)
-	}
 	Infer(proc)
 	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
@@ -336,9 +321,6 @@ func TestHigherOrderInferUnify(t *testing.T) {
 	xtype := "chan struct{}"
 	proc, err := asyncpi.Parse(strings.NewReader(input))
 	if err != nil {
-		t.Fatal(err)
-	}
-	if err := asyncpi.Bind(&proc); err != nil {
 		t.Fatal(err)
 	}
 	Infer(proc)
@@ -399,9 +381,6 @@ func TestInferUnifyNested(t *testing.T) {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
 			atype, resa.Name.(TypedName).Type())
 	}
-	if err := asyncpi.Bind(&proc); err != nil {
-		t.Fatal(err)
-	}
 	Infer(proc)
 	Unify(proc)
 	inferredResa, ok := proc.(*asyncpi.Restrict)
@@ -442,7 +421,6 @@ func TestInferUnifyNamePassing(t *testing.T) {
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", namePassing)
 	}
-	if err := asyncpi.Bind(&proc); err != nil {
 		t.Fatal(err)
 	}
 	Infer(proc)
@@ -489,7 +467,6 @@ func TestInferNested(t *testing.T) {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
 			atype, resa.Name.(TypedName).Type())
 	}
-	asyncpi.Bind(&proc)
 	Infer(proc)
 	Unify(proc)
 	inferredResa, ok := proc.(*asyncpi.Restrict)
@@ -520,7 +497,6 @@ func TestMismatchCompType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	asyncpi.Bind(&proc)
 	Infer(proc)
 	err = Unify(proc)
 	if _, ok := err.(*TypeArityError); !ok {
@@ -533,9 +509,6 @@ func TestMultipleSender(t *testing.T) {
 	ms := `(new b)a(x).(x<b>|x<z>)`
 	proc, err := asyncpi.Parse(strings.NewReader(ms))
 	if err != nil {
-		t.Fatal(err)
-	}
-	if err := asyncpi.Bind(&proc); err != nil {
 		t.Fatal(err)
 	}
 	Infer(proc)
