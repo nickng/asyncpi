@@ -14,7 +14,42 @@ see [godoc](http://godoc.org/github.com/nickng/asyncpi).
 
 ## Install
 
-    go get go.nickng.io/asyncpi
+    go get -u go.nickng.io/asyncpi
+
+## Play
+
+`cmd/asyncpi` is a simple REPL front end for the package, with very
+basic support for *parsing*,
+*free name calculation*, *process reduction* and *code fragment generation*.
+
+### Build and install
+
+    go install go.nickng.io/asyncpi/cmd/asyncpi
+
+### Run
+
+    $ asyncpi
+    async-π> parse
+    .......> a<b,c,d> | a(x,y,z).x().0 | b<> | c(z).0 | (new c)c<d>
+    ((((a<b,c,d> | a(x,y,z).x().0) | b<>) | c(z).0) | (new c)c<d>)
+    async-π> reduce
+    Reducing: ((((a<b,c,d> | a(x,y,z).x().0) | b<>) | c(z).0) | (new c)c<d>)
+    (((b().0 | b<>) | c(z).0) | (new c)c<d>)
+    async-π> reduce
+    Reducing: (((b().0 | b<>) | c(z).0) | (new c)c<d>)
+    (c(z).0 | (new c)c<d>)
+    async-π> reduce
+    Reducing: (c(z).0 | (new c)c<d>)
+    (c(z).0 | (new c)c<d>)
+    async-π> codegen
+    /* start generated code */
+
+    go func() { z := <-c /* end */ }()
+    c := make(chan interface{})
+    c <- d
+
+    /* end generated code */
+    async-π> exit
 
 ## License
 
