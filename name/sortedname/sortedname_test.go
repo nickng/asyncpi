@@ -45,11 +45,11 @@ func TestParSort(t *testing.T) {
 	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
-	if expect, got := 2, len(p.FreeNames()); expect != got {
+	if expect, got := 5, len(p.FreeNames()); expect != got {
 		t.Errorf("Expecting %s to have %d free names but got %d.",
 			p.Calculi(), expect, got)
 	}
-	if expect, got := 3, len(p.FreeVars()); expect != got {
+	if expect, got := 0, len(p.FreeVars()); expect != got {
 		t.Errorf("Expecting %s to have %d free vars but got %d",
 			p.Calculi(), expect, got)
 	}
@@ -65,11 +65,11 @@ func TestParSortOverlap(t *testing.T) {
 	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
-	if expect, got := 1, len(p.FreeNames()); expect != got {
+	if expect, got := 4, len(p.FreeNames()); expect != got {
 		t.Errorf("Expecting %s to have %d free names but got %d.",
 			p.Calculi(), expect, got)
 	}
-	if expect, got := 3, len(p.FreeVars()); expect != got {
+	if expect, got := 0, len(p.FreeVars()); expect != got {
 		t.Errorf("Expecting %s to have %d free vars but got %d.",
 			p.Calculi(), expect, got)
 	}
@@ -117,7 +117,7 @@ func TestSendSort(t *testing.T) {
 	}
 	t.Logf("fn(%s) = %s", p.Calculi(), p.FreeNames())
 	t.Logf("fv(%s) = %s", p.Calculi(), p.FreeVars())
-	if expect, got := 1, len(p.FreeNames()); expect != got {
+	if expect, got := 2, len(p.FreeNames()); expect != got {
 		t.Errorf("Expecting %s to have %d free names but got %d.",
 			p.Calculi(), expect, got)
 	}
@@ -125,13 +125,9 @@ func TestSendSort(t *testing.T) {
 		t.Errorf("Expecting fn(%s) to be %s but got %s",
 			p.Calculi(), p.Chan, p.FreeNames()[0])
 	}
-	if expect, got := 1, len(p.FreeVars()); expect != got {
+	if expect, got := 0, len(p.FreeVars()); expect != got {
 		t.Errorf("Expecting %s to have %d free vars but got %d",
 			p.Calculi(), expect, got)
-	}
-	if p.FreeVars()[0] != p.Vals[0] {
-		t.Errorf("Expecting fv(%s) to be %s but got %s",
-			p.Calculi(), p.Vals[0], p.FreeVars()[0])
 	}
 }
 

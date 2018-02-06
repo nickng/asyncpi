@@ -32,7 +32,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 	if err := upgrade(p); err != nil {
 		return errInferSort(errors.Wrap(err, "cannot upgrade process Names to SortedNames"))
 	}
-	nameVar := make(map[asyncpi.Name]bool)
+	isVarSort := make(map[asyncpi.Name]bool)
 	procs := []asyncpi.Process{p}
 	for len(procs) > 0 {
 		p, procs = procs[0], procs[1:]
@@ -45,7 +45,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 			procs = append(procs, p.Procs...)
 		case *asyncpi.Recv:
 			for i := range p.Vars {
-				nameVar[p.Vars[i]] = true
+				isVarSort[p.Vars[i]] = true
 				if s, canSetSort := p.Vars[i].(setter); canSetSort {
 					s.SetSort(VarSort)
 				} else {
@@ -55,17 +55,17 @@ func InferSortsByUsage(p asyncpi.Process) error {
 			procs = append(procs, p.Cont)
 		case *asyncpi.Send:
 			for i := range p.Vals {
-				if _, ok := nameVar[p.Vals[i]]; !ok {
-					nameVar[p.Vals[i]] = true
+				if _, ok := isVarSort[p.Vals[i]]; !ok { // if not seen
+					isVarSort[p.Vals[i]] = false
 					if s, canSetSort := p.Vals[i].(setter); canSetSort {
-						s.SetSort(VarSort)
+						s.SetSort(NameSort)
 					} else {
 						return errInferSort(asyncpi.ImmutableNameError{Name: p.Vals[i]})
 					}
 				}
 			}
 		case *asyncpi.Restrict:
-			nameVar[p.Name] = false // new name = not var
+			isVarSort[p.Name] = false // new name = not var
 			procs = append(procs, p.Proc)
 		default:
 			return errInferSort(asyncpi.UnknownProcessError{Proc: p})
