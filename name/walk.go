@@ -58,7 +58,7 @@ func Walk(v Visitor, proc asyncpi.Process) error {
 				return err
 			}
 		default:
-			return asyncpi.UnknownProcessTypeError{Caller: "Walk", Proc: p}
+			return asyncpi.InvalidProcTypeError{Caller: "name.Walk", Proc: p}
 		}
 	}
 	return nil

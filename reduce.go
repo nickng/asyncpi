@@ -50,7 +50,7 @@ func Subst(p Process, vs, xs []Name) error {
 				}
 			}
 		default:
-			return UnknownProcessTypeError{Caller: "Subst", Proc: p}
+			return InvalidProcTypeError{Caller: "Subst", Proc: p}
 		}
 	}
 	return nil
@@ -119,7 +119,7 @@ func reduceOnce(p Process) (changed bool, err error) {
 	case *Send:
 		return false, nil
 	default:
-		return false, UnknownProcessTypeError{Caller: "reduceOnce", Proc: p}
+		return false, InvalidProcTypeError{Caller: "reduceOnce", Proc: p}
 	}
 }
 
@@ -195,7 +195,7 @@ func findUnusedRestrict(p Process) (unused []Name, err error) {
 				}
 			}
 		default:
-			return nil, UnknownProcessTypeError{Caller: "findUnusedRestrict", Proc: p}
+			return nil, InvalidProcTypeError{Caller: "findUnusedRestrict", Proc: p}
 		}
 	}
 	for _, rc := range resUses {
@@ -259,7 +259,7 @@ func filterRestrict(p Process, unwanted []Name) (Process, error) {
 	case *Send:
 		return p, nil
 	default:
-		return nil, UnknownProcessTypeError{Caller: "filterRestrict", Proc: p}
+		return nil, InvalidProcTypeError{Caller: "filterRestrict", Proc: p}
 	}
 }
 
@@ -326,6 +326,6 @@ func filterNilProcess(p Process) (Process, error) {
 	case *Send:
 		return p, nil
 	default:
-		return nil, UnknownProcessTypeError{Caller: "filterNilProcess", Proc: p}
+		return nil, InvalidProcTypeError{Caller: "filterNilProcess", Proc: p}
 	}
 }

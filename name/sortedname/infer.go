@@ -63,7 +63,7 @@ func InferSortsByUsage(p asyncpi.Process) error {
 			nameVar[p.Name] = false // new name = not var
 			procs = append(procs, p.Proc)
 		default:
-			return asyncpi.UnknownProcessTypeError{Caller: "sortedname.InferSortsByUsage", Proc: p}
+			return asyncpi.InvalidProcTypeError{Caller: "sortedname.InferSortsByUsage", Proc: p}
 		}
 	}
 	return nil

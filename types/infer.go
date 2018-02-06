@@ -133,7 +133,7 @@ func processInferType(p asyncpi.Process) error {
 			p.Chan.(TypedName).setType(NewChan(NewComposite(tvs...)))
 		}
 	default:
-		return asyncpi.UnknownProcessTypeError{Caller: "asyncpi/types.Infer", Proc: p}
+		return asyncpi.InvalidProcTypeError{Caller: "types.Infer", Proc: p}
 	}
 	return nil
 }

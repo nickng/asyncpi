@@ -49,7 +49,7 @@ func upgrade(p asyncpi.Process) error {
 			p.Name = New(p.Name)
 			procs = append(procs, p.Proc)
 		default:
-			return asyncpi.UnknownProcessTypeError{Caller: "sortedname.upgrade", Proc: p}
+			return asyncpi.InvalidProcTypeError{Caller: "sortedname.upgrade", Proc: p}
 		}
 	}
 	return nil

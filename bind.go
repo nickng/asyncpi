@@ -81,6 +81,6 @@ func bind(p Process, boundNames []Name) (_ Process, err error) {
 		p.Proc, err = bind(p.Proc, names)
 		return p, err
 	default:
-		return nil, UnknownProcessTypeError{Caller: "bind", Proc: p}
+		return nil, InvalidProcTypeError{Caller: "bind", Proc: p}
 	}
 }

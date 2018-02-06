@@ -25,13 +25,13 @@ func (e ImmutableNameError) Error() string {
 	return fmt.Sprintf("cannot modify name %v: immutable implementation of Name", e.Name.Ident())
 }
 
-// UnknownProcessTypeError is the type of error for an unknown process type.
-type UnknownProcessTypeError struct {
+// InvalidProcTypeError is the type of error for an unknown process type.
+type InvalidProcTypeError struct {
 	Caller string
 	Proc   Process
 }
 
-func (e UnknownProcessTypeError) Error() string {
+func (e InvalidProcTypeError) Error() string {
 	return fmt.Sprintf("%s: Unknown process type: %T", e.Caller, e.Proc)
 }
 
