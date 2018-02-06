@@ -16,10 +16,12 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"strings"
@@ -54,6 +56,14 @@ type REPL struct {
 	err io.Writer
 }
 
+// Core commands.
+const (
+	CmdExit  = "exit"
+	CmdHelp  = "help"
+	CmdLoad  = "load"
+	CmdParse = "parse"
+)
+
 func NewREPL() *REPL {
 	r := REPL{
 		Done: make(chan error),
@@ -62,10 +72,11 @@ func NewREPL() *REPL {
 		err:  os.Stderr,
 	}
 	r.Cmd = map[string]Command{
-		"help":    &helpCmd{r: &r},
-		"exit":    &exitCmd{r: &r},
+		CmdExit:   &exitCmd{r: &r},
+		CmdHelp:   &helpCmd{r: &r},
+		CmdLoad:   &loadCmd{r: &r},
+		CmdParse:  &parseCmd{r: &r},
 		"history": &histCmd{r: &r},
-		"parse":   &parseCmd{r: &r},
 		"reduce":  &reduceCmd{r: &r},
 		"show":    &subprocCmd{r: &r},
 		"codegen": &codegenCmd{r: &r},
@@ -160,6 +171,44 @@ func (cmd *histCmd) Run() {
 	for i, p := range cmd.r.hist {
 		cmd.r.Responsef("%d:\t%s\n", i, p.Calculi())
 	}
+}
+
+type loadCmd struct {
+	r *REPL
+}
+
+func (cmd *loadCmd) Desc() string { return "Load a file to parse." }
+func (cmd *loadCmd) Run() {
+	r := bufio.NewReader(cmd.r.in)
+	filepath, err := r.ReadString('\n') // Read newline delimited filename.
+	if err != nil {
+		if err == io.EOF {
+			cmd.r.Cmd[CmdExit].Run()
+			return
+		}
+		cmd.r.Done <- err
+		return
+	}
+	filepath = strings.TrimSpace(filepath)
+	cmd.r.Responsef("Loading: %s\n", filepath)
+	file, err := os.Open(filepath)
+	if err != nil {
+		cmd.r.Errorf("cannot open file: %v\n", err)
+		return
+	}
+	b, err := ioutil.ReadAll(file)
+	if err != nil {
+		cmd.r.Errorf("cannot read file: %v\n", err)
+		return
+	}
+	if err := file.Close(); err != nil {
+		cmd.r.Errorf("cannot close file: %v\n", err)
+		return
+	}
+	origIn := cmd.r.in
+	cmd.r.in = bytes.NewReader(b)
+	cmd.r.Cmd[CmdParse].Run()
+	cmd.r.in = origIn
 }
 
 func init() {
