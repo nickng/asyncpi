@@ -114,15 +114,14 @@ func (r *REPL) Prompt() {
 	for {
 		var command string
 		fmt.Fprint(r.out, PromptInit)
-		select {
-		case <-r.Interrupted:
-			r.Cmd["exit"].Run()
-		default:
+		waitPrompt := make(chan struct{})
+		go func(prompt chan struct{}) {
+			defer func() { close(prompt) }()
 			// read first space-delimited string (the command).
 			_, err := fmt.Fscanf(r.in, "%s", &command)
 			if err != nil {
 				if err == io.EOF {
-					command = "exit"
+					command = CmdExit
 				}
 			}
 			command = strings.TrimSpace(command)
@@ -130,8 +129,13 @@ func (r *REPL) Prompt() {
 				cmd.Run()
 			} else {
 				r.Errorf("Unrecognised command: %s\n", command)
-				r.Cmd["help"].Run()
+				r.Cmd[CmdHelp].Run()
 			}
+		}(waitPrompt)
+		select {
+		case <-r.Interrupted: // Wait for Ctrl+C
+			r.Cmd[CmdExit].Run()
+		case <-waitPrompt: // Wait for prompt to finish
 		}
 	}
 }
