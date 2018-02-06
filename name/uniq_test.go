@@ -27,17 +27,19 @@ func TestUpdateName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bproc := asyncpi.Bind(proc)
-	if err := MakeNamesUnique(bproc); err != nil {
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
+	if err := MakeNamesUnique(proc); err != nil {
 		t.Fatalf("cannot update name: %v", err)
 	}
-	if expect, got := 2, len(bproc.FreeNames()); expect != got {
-		t.Fatalf("Expecting %d unique free names, but got %d: %s", expect, got, bproc.Calculi())
+	if expect, got := 2, len(proc.FreeNames()); expect != got {
+		t.Fatalf("Expecting %d unique free names, but got %d: %s", expect, got, proc.Calculi())
 	}
-	if expect, got := 0, len(bproc.FreeVars()); expect != got {
-		t.Fatalf("Expecting %d unique free vars, but got %d: %s", expect, got, bproc.Calculi())
+	if expect, got := 0, len(proc.FreeVars()); expect != got {
+		t.Fatalf("Expecting %d unique free vars, but got %d: %s", expect, got, proc.Calculi())
 	}
-	t.Logf("%s has unique names %q", bproc.Calculi(), bproc.FreeNames())
+	t.Logf("%s has unique names %q", proc.Calculi(), proc.FreeNames())
 }
 
 func TestUpdateNamePar(t *testing.T) {
@@ -46,14 +48,16 @@ func TestUpdateNamePar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bproc := asyncpi.Bind(proc)
-	if err := MakeNamesUnique(bproc); err != nil {
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
+	if err := MakeNamesUnique(proc); err != nil {
 		t.Fatalf("cannot update name: %v", err)
 	}
-	if expect, got := 6, len(bproc.FreeNames()); expect != got {
-		t.Fatalf("Expecting %d unique free names, but got %d: %s", expect, got, bproc.Calculi())
+	if expect, got := 6, len(proc.FreeNames()); expect != got {
+		t.Fatalf("Expecting %d unique free names, but got %d: %s", expect, got, proc.Calculi())
 	}
-	if expect, got := 0, len(bproc.FreeVars()); expect != got {
-		t.Fatalf("Expecting %d unique free vars, but got %d: %s", expect, got, bproc.Calculi())
+	if expect, got := 0, len(proc.FreeVars()); expect != got {
+		t.Fatalf("Expecting %d unique free vars, but got %d: %s", expect, got, proc.Calculi())
 	}
 }

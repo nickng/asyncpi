@@ -56,7 +56,9 @@ func processAttachType(p asyncpi.Process) {
 
 func Infer(p asyncpi.Process) error {
 	processAttachType(p)
-	asyncpi.Bind(p)
+	if err := asyncpi.Bind(&p); err != nil {
+		return err
+	}
 	return processInferType(p)
 }
 

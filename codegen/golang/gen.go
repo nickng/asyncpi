@@ -26,7 +26,9 @@ import (
 
 // Generate writes Go code of the Process to w.
 func Generate(p asyncpi.Process, w io.Writer) error {
-	asyncpi.Bind(p)
+	if err := asyncpi.Bind(&p); err != nil {
+		return err
+	}
 	types.Infer(p)
 	if err := types.Unify(p); err != nil {
 		return err

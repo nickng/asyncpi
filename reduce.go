@@ -154,7 +154,9 @@ func SimplifyBySC(p Process) (Process, error) {
 // Such that the unused Names and the Restrict that
 // introduced them can be removed.
 func findUnusedRestrict(p Process) (unused []Name, err error) {
-	p = Bind(p)
+	if err := Bind(&p); err != nil {
+		return nil, err
+	}
 	type rescount struct {
 		ResName Name
 		Count   int

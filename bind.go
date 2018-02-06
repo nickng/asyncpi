@@ -3,85 +3,84 @@ package asyncpi
 // Binding.
 // This file contains functions for name binding.
 
-import (
-	"log"
-)
-
 // Bind takes a parsed process p and returned a process with valid binding.
-func Bind(p Process) Process {
-	return bind(p, []Name{})
+func Bind(p *Process) error {
+	var err error
+	*p, err = bind(*p, []Name{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func bind(p Process, boundNames []Name) Process {
-	switch proc := p.(type) {
+// bind is a depth-first recursive traversal of a Process p
+// with boundNames to bind Names with the same Ident.
+func bind(p Process, boundNames []Name) (_ Process, err error) {
+	switch p := p.(type) {
 	case *NilProcess:
-		return proc
+		return p, nil
 	case *Repeat:
-		proc.Proc = bind(proc.Proc, boundNames)
-		return proc
+		p.Proc, err = bind(p.Proc, boundNames)
+		return p, err
 	case *Par:
-		for i := range proc.Procs {
-			bind(proc.Procs[i], boundNames)
+		for i := range p.Procs {
+			p.Procs[i], err = bind(p.Procs[i], boundNames)
 		}
-		return proc
+		return p, err
 	case *Recv:
 		names := make([]Name, len(boundNames))
 		for i := range boundNames {
 			names[i] = boundNames[i]
 		}
-		names = append(names, proc.Vars...)
-		for _, v := range proc.Vars {
-			for j := 0; j < len(names)-len(proc.Vars); j++ {
+		names = append(names, p.Vars...)
+		for _, v := range p.Vars {
+			for j := 0; j < len(names)-len(p.Vars); j++ {
 				if IsSameName(v, names[j]) {
-					log.Println("Warning: rebinding name", v.Ident(), "in recv")
+					// Rebinding existing bound name.
 					names = append(names[:j], names[j+1:]...)
 				}
 			}
 		}
 		var chanBound bool
 		for i, bn := range names {
-			if IsSameName(proc.Chan, bn) { // Found bound Chan
-				proc.Chan = names[i]
+			if IsSameName(p.Chan, bn) { // Found bound Chan
+				p.Chan = names[i]
 				chanBound = true
 			}
 		}
 		if !chanBound {
-			names = append(names, proc.Chan)
+			names = append(names, p.Chan)
 		}
-		proc.Cont = bind(proc.Cont, names)
-		return proc
+		p.Cont, err = bind(p.Cont, names)
+		return p, err
 	case *Send:
 		count := 0
 		for i, bn := range boundNames {
-			for j, v := range proc.Vals {
+			for j, v := range p.Vals {
 				if IsSameName(v, bn) { // Found bound name.
-					proc.Vals[j] = boundNames[i]
+					p.Vals[j] = boundNames[i]
 					count++
 				}
 			}
 		}
 		for i, bn := range boundNames {
-			if IsSameName(proc.Chan, bn) { // Found bound Chan.
-				proc.Chan = boundNames[i]
+			if IsSameName(p.Chan, bn) { // Found bound Chan.
+				p.Chan = boundNames[i]
 				count++
 			}
 		}
-		if count < len(proc.Vals)+1 {
-			log.Println("Warning:", len(proc.Vals)+1-count, "names are left unbound")
-		}
-		return proc
+		return p, err
 	case *Restrict:
-		names := append(boundNames, proc.Name)
+		names := append(boundNames, p.Name)
 		for i := 0; i < len(names)-1; i++ {
-			if IsSameName(proc.Name, names[i]) {
-				log.Println("Warning: rebinding name", proc.Name.Ident(), "in restrict")
+			if IsSameName(p.Name, names[i]) {
+				// Rebinding existing bound name.
 				names = append(names[:i], names[i+1:]...)
 			}
 		}
-		proc.Proc = bind(proc.Proc, names)
-		return proc
+		p.Proc, err = bind(p.Proc, names)
+		return p, err
 	default:
-		log.Fatal(UnknownProcessTypeError{Caller: "Bind", Proc: p})
+		return nil, UnknownProcessTypeError{Caller: "bind", Proc: p}
 	}
-	return proc
 }

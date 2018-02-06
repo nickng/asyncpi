@@ -19,7 +19,9 @@ func TestBasicInferOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 
 	resa, ok := proc.(*asyncpi.Restrict)
@@ -87,7 +89,9 @@ func TestBasicInferUnify(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 	Unify(proc)
 
@@ -158,7 +162,9 @@ func TestWrongHintInferOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 
 	resa, ok := proc.(*asyncpi.Restrict)
@@ -223,7 +229,9 @@ func TestWrongHintInferUnify(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 	Unify(proc)
 
@@ -282,7 +290,9 @@ func TestHigherOrderInferOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 	resa, ok := proc.(*asyncpi.Restrict)
 	if !ok {
@@ -328,7 +338,9 @@ func TestHigherOrderInferUnify(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 	Unify(proc)
 	resa, ok := proc.(*asyncpi.Restrict)
@@ -387,7 +399,9 @@ func TestInferUnifyNested(t *testing.T) {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
 			atype, resa.Name.(TypedName).Type())
 	}
-	proc = asyncpi.Bind(proc)
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
 	Infer(proc)
 	Unify(proc)
 	inferredResa, ok := proc.(*asyncpi.Restrict)
@@ -416,7 +430,6 @@ func TestInferUnifyNested(t *testing.T) {
 // y sends c and z so y is 2-elem struct, combined with above, struct{e0 T;e1 T}
 // unification makes y <=> b
 // a is therefore struct{e0 struct{e0 T; e1 T};e1 T}
-/*
 func TestInferUnifyNamePassing(t *testing.T) {
 	namePassing := "(new a)(new b)(new c:T)(a<b,c> | a(y,z).y<c,z>)"
 	atype := "chan struct{e0 chan struct{e0 T;e1 T};e1 T}"
@@ -425,15 +438,13 @@ func TestInferUnifyNamePassing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resa, ok := proc.(*asyncpi.Restrict)
+	_, ok := proc.(*asyncpi.Restrict)
 	if !ok {
 		t.Errorf("Parse: `%s` does not begin with restriction", namePassing)
 	}
-	if _, ok := resa.Name.(TypedName).Type().(*unTypedName); !ok {
-		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
-			atype, resa.Name.(TypedName).Type())
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
 	}
-	proc =asyncpi.Bind(proc)
 	Infer(proc)
 	Unify(proc)
 	inferredResa, ok := proc.(*asyncpi.Restrict)
@@ -454,7 +465,6 @@ func TestInferUnifyNamePassing(t *testing.T) {
 			btype, inferredResb.Name.(TypedName).Type())
 	}
 }
-*/
 
 // Tests inference of nested type.
 // a sends b and c so a is 2-elem struct.
@@ -479,7 +489,7 @@ func TestInferNested(t *testing.T) {
 		t.Errorf("Infer: Type of `a` is not %s\n got: %s",
 			atype, resa.Name.(TypedName).Type())
 	}
-	proc = asyncpi.Bind(proc)
+	asyncpi.Bind(&proc)
 	Infer(proc)
 	Unify(proc)
 	inferredResa, ok := proc.(*asyncpi.Restrict)
@@ -510,9 +520,9 @@ func TestMismatchCompType(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bproc := asyncpi.Bind(proc)
-	Infer(bproc)
-	err = Unify(bproc)
+	asyncpi.Bind(&proc)
+	Infer(proc)
+	err = Unify(proc)
 	if _, ok := err.(*TypeArityError); !ok {
 		t.Fatalf("Unify: Expecting type error (mismatched args in a) but got %v", err)
 	}
@@ -525,9 +535,11 @@ func TestMultipleSender(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bproc := asyncpi.Bind(proc)
-	Infer(bproc)
-	if err := Unify(bproc); err != nil {
+	if err := asyncpi.Bind(&proc); err != nil {
+		t.Fatal(err)
+	}
+	Infer(proc)
+	if err := Unify(proc); err != nil {
 		t.Fatal(err)
 	}
 }

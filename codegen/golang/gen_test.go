@@ -16,7 +16,9 @@ func ExampleGenerate() {
 	if err != nil {
 		fmt.Println(err) // Parse failed
 	}
-	p = asyncpi.Bind(p)
+	if err := asyncpi.Bind(&p); err != nil {
+		fmt.Println(err)
+	}
 	types.Infer(p)
 	err = types.Unify(p)
 	if err != nil {
