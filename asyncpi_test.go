@@ -25,10 +25,9 @@ func init() {
 			FreeNames: []Name{},
 		},
 		"Par": {
-			Input: `b().a().0 | b<> | (new x)x(a,b,c).0`,
-			Output: `((recv(b,[]).recv(a,[]).inact
-|send(b,[]))
-|restrict(x,recv(x,[a b c]).inact))`, FreeNames: newNames("a", "b"),
+			Input:     `b().a().0 | b<> | (new x)x(a,b,c).0`,
+			Output:    `par[ par[ recv(b,[]).recv(a,[]).inact | send(b,[]) ] | restrict(x,recv(x,[a b c]).inact) ]`,
+			FreeNames: newNames("a", "b"),
 		},
 		"Recv": {
 			Input:     `a(b, c,d__).   0 `,
@@ -201,7 +200,5 @@ func ExampleParse() {
 		fmt.Println(err) // Parse failed
 	}
 	fmt.Println(proc.String())
-	// Output: restrict(a,((send(a,[v])
-	// |recv(a,[x]).recv(b,[y]).inact)
-	// |send(b,[u])))
+	// Output: restrict(a,par[ par[ send(a,[v]) | recv(a,[x]).recv(b,[y]).inact ] | send(b,[u]) ])
 }

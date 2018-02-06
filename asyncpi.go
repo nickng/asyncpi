@@ -92,14 +92,14 @@ func (p *Par) FreeVars() []Name {
 
 func (p *Par) String() string {
 	var buf bytes.Buffer
-	buf.WriteRune('(')
+	buf.WriteString("par[ ")
 	for i, proc := range p.Procs {
 		if i != 0 {
-			buf.WriteString("\n|")
+			buf.WriteString(" | ")
 		}
 		buf.WriteString(proc.String())
 	}
-	buf.WriteRune(')')
+	buf.WriteString(" ]")
 	return buf.String()
 }
 
