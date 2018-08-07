@@ -84,6 +84,9 @@ func (s *scanner) Scan() (token tok, value string, startPos, endPos TokenPos) {
 		return kREPEAT, string(ch), startPos, endPos
 	case ',':
 		return kCOMMA, string(ch), startPos, endPos
+	case '#':
+		s.skipToEOL()
+		return s.Scan()
 	}
 
 	return kILLEGAL, string(ch), startPos, endPos
@@ -121,6 +124,14 @@ func (s *scanner) skipWhitespace() {
 			break
 		} else if !isWhitespace(ch) {
 			s.unread()
+			break
+		}
+	}
+}
+
+func (s *scanner) skipToEOL() {
+	for {
+		if ch := s.read(); ch == '\n' || ch == eof {
 			break
 		}
 	}

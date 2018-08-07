@@ -178,6 +178,28 @@ func TestParseSend(t *testing.T) {
 	}
 }
 
+// Tests parsing with comment.
+func TestParseComment(t *testing.T) {
+	test := TestCase{
+		Input: `
+		a(). # Receive
+
+		# blank line
+
+		0 #end`,
+		Output:    `recv(a,[]).inact`,
+		FreeNames: newNames("a"),
+	}
+	proc, err := Parse(strings.NewReader(test.Input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.TrimSpace(proc.String()) != test.Output {
+		t.Errorf("Parse: `%s` not parsed as recv `%s`.\nparsed: %s",
+			test.Input, test.Output, proc)
+	}
+}
+
 // Tests syntax error.
 func TestParseFailed(t *testing.T) {
 	incomplete := `(new a`
