@@ -24,7 +24,7 @@ import (
 	"go.nickng.io/asyncpi/types"
 )
 
-// Generate writes Go code of the Process to w.
+// Generate writes Go code of the Process p to w.
 func Generate(p asyncpi.Process, w io.Writer) error {
 	if err := asyncpi.Bind(&p); err != nil {
 		return err
