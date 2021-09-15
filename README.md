@@ -1,9 +1,9 @@
-# asyncpi [![Build Status](https://travis-ci.org/nickng/asyncpi.svg?branch=master)](https://travis-ci.org/nickng/asyncpi) [![GoDoc](https://godoc.org/go.nickng.io/asyncpi?status.svg)](http://godoc.org/go.nickng.io/asyncpi)
+# asyncpi ![Build Status](https://github.com/nickng/asyncpi/actions/workflows/test.yml/badge.svg) [![Go Reference](https://pkg.go.dev/badge/go.nickng.io/asyncpi.svg)](https://pkg.go.dev/go.nickng.io/asyncpi)
 
 ## An implementation of asynchronous π-calculus in Go.
 
 The basic syntax accept is given below, for details (including syntactic sugar),
-see [godoc](http://godoc.org/github.com/nickng/asyncpi).
+see [docs](http://pkg.go.dev/github.com/nickng/asyncpi).
 
     P,Q ::= 0           nil process
           | P|Q         parallel composition of P and Q
